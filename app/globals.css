@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+/* Design tokens. Change the palette here; every screen follows.
+   Night screens (the 3D village, missions): night = deep burgundy-walnut surface, gold = champagne accent, cream = ivory text.
+   Day screens (sign-in, home): parchment cards with a gold rim, crimson actions, ink text, over a sunny hillside. */
+@theme {
+  --color-night: #24151a;
+  --color-night-2: #3b2329;
+  --color-gold: #e9cf98;
+  --color-cream: #f8f1e4;
+  --color-terracotta: #c2693f;
+  --color-forest: #4d6b3c;
+
+  --color-parchment: #fcf1d8;
+  --color-parchment-2: #f3e2bd;
+  --color-rim: #dcae55;
+  --color-crimson: #b3222a;
+  --color-crimson-dark: #7e1418;
+  --color-ink: #3b2414;
+  --color-ink-soft: #6b4a2e;
+}
+
+@theme inline {
+  --font-sans: var(--font-latin), var(--font-ml), system-ui, sans-serif;
+  --font-display: var(--font-serif), var(--font-ml), Georgia, serif;
+}
+
+body {
+  background: var(--color-night);
+  color: var(--color-cream);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+@keyframes sheet {
+  from {
+    transform: translateY(1.5rem);
+    opacity: 0;
+  }
+}
+
+/* Sunny hillside behind the day screens: tall art on phones, wide art on laptops; a gradient until the art loads. */
+.day-bg {
+  background:
+    url(/bg/tall.webp) center bottom / cover no-repeat,
+    linear-gradient(#2f86e8 0%, #8cc8f5 42%, #8cc957 43%, #4f9a2f 100%);
+}
+@media (orientation: landscape) {
+  .day-bg {
+    background-image: url(/bg/wide.webp), linear-gradient(#2f86e8 0%, #8cc8f5 42%, #8cc957 43%, #4f9a2f 100%);
+  }
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(1rem);
+    opacity: 0;
+  }
+}
