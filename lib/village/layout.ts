@@ -59,12 +59,12 @@ export const REWARDS: { day: number; world: WorldKey; tree: TreeKey }[] = [
 ];
 
 /**
- * The village backgrounds. `horizon` is the v of the far hills; things shrink towards it.
+ * The village backgrounds, by day and by night (same layout, so spots fit both). `horizon` is the v of the far hills; things shrink towards it.
  * `depth` turns distance below the horizon into a size: scale = depth * (v - horizon).
  */
 export const PAINTINGS = {
-  tall: { url: asset("/bg/village-tall.webp"), aspect: 1330 / 1182, horizon: 0.35, depth: 4.4 },
-  wide: { url: asset("/bg/village-wide.webp"), aspect: 1939 / 811, horizon: 0.4, depth: 4 },
+  tall: { url: asset("/bg/village-tall.webp"), night: asset("/bg/village-tall-night.webp"), aspect: 1330 / 1182, horizon: 0.35, depth: 4.4 },
+  wide: { url: asset("/bg/village-wide.webp"), night: asset("/bg/village-wide-night.webp"), aspect: 1939 / 811, horizon: 0.4, depth: 4 },
 } as const;
 
 /**
@@ -158,7 +158,7 @@ export const PIECES: Record<PieceKey, Piece> = {
     spot: s([0.7, 0.78], [0.3, 0.8]),
   },
   hay: {
-    name: { en: "Hay Bundle", ml: "വൈക്കോൽക്കെട്ട്" },
+    name: { en: "Hay Bundle", ml: "വൈക്കോൽ കെട്ട്" },
     desc: { en: "Soft hay to make a bed for the Baby.", ml: "ഉണ്ണിക്ക് കിടക്കയൊരുക്കാൻ മൃദുവായ വൈക്കോൽ." },
     height: 0.8,
     spot: s([0.49, 0.645], [0.47, 0.8]),
@@ -193,7 +193,7 @@ export const PIECES: Record<PieceKey, Piece> = {
     glb: "/models/shepherd1.glb",
   },
   shepherd2: {
-    name: { en: "Young Shepherd", ml: "ഇളയ ആട്ടിടയൻ" },
+    name: { en: "Young Shepherd", ml: "ആട്ടിടയൻ" },
     desc: { en: "He ran to Bethlehem to see the Baby.", ml: "ഉണ്ണിയെ കാണാൻ അവൻ ബേത്‌ലെഹേമിലേക്ക് ഓടി." },
     height: 2.2,
     spot: s([0.2, 0.92], [0.17, 0.9]),

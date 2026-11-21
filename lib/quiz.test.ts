@@ -32,12 +32,14 @@ test("every day has a quiz with 4 distinct choices in both languages", () => {
 
 test("each Bible quote hides its chosen word once, with 4 distinct choices", async () => {
   const { QUIZ } = await import("../content/quiz.ts");
-  const quotes = Object.entries(QUIZ);
+  for (const lang of ["en", "ml"] as const) {
+  const quotes = Object.entries(QUIZ).map(([d, q]) => [d, lang === "ml" ? q!.ml : q] as const);
   for (const [day, q] of quotes) {
-    const whole = new RegExp(String.raw`(?<!\p{L})${q!.blank}(?!\p{L})`, "gu");
+    const whole = new RegExp(String.raw`(?<![\p{L}\p{M}‍])${q!.blank}(?![\p{L}\p{M}‍])`, "gu");
     assert.equal(q!.text.match(whole)?.length, 1, `day ${day}: "${q!.blank}" must appear once`);
     const quiz = makeQuiz(q!.text, quotes.filter(([d]) => d !== day).map(([, o]) => o!.blank), Number(day), q!.blank)!;
     assert.equal(quiz.answer, q!.blank);
-    assert.equal(new Set(quiz.options.map((o) => o.toLowerCase())).size, 4, `day ${day}: ${quiz.options}`);
+    assert.equal(new Set(quiz.options.map((o) => o.toLowerCase())).size, 4, `day ${day} ${lang}: ${quiz.options}`);
+  }
   }
 });

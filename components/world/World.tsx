@@ -5,7 +5,7 @@
 
 import { MapControls, useTexture } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Suspense, useEffect, useMemo, useRef, type ReactNode } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
 import type { MapControls as MapControlsImpl } from "three-stdlib";
 import type { OrnamentKind, TreeState } from "@/lib/tree";
@@ -19,10 +19,9 @@ export type View = "home" | "tree" | "stable" | "field" | "star" | PieceKey;
 export type Quality = "low" | "balanced" | "high";
 export type Pickable = "tree" | "stable" | "star";
 
-/** Imperative hooks the page calls into the scene: screen-to-branch picking and picture capture. */
+/** Imperative hooks the page calls into the scene: screen-to-branch picking. */
 export type WorldApi = {
   pick: (clientX: number, clientY: number, exclude?: number) => number;
-  capture: () => Promise<Blob | null>;
 };
 
 const H = 20; // painting height in world units
@@ -40,6 +39,12 @@ function place(k: PaintingKey, [u, v]: Spot, size = 1, sky = false) {
 }
 
 const TREE_SIZE = 1.3;
+
+/** Lanterns lit at night, painting [u, v]: beside the stable's right front post, then one on the grass each side of the path in front. */
+const NIGHT_LANTERNS: Record<PaintingKey, Spot[]> = {
+  tall: [[0.69, 0.635], [0.13, 0.78], [0.86, 0.81]],
+  wide: [[0.665, 0.78], [0.15, 0.88], [0.86, 0.89]],
+};
 
 function usePainting(): PaintingKey {
   return useThree((s) => (s.size.width < s.size.height ? "tall" : "wide"));
@@ -121,22 +126,24 @@ function Rig({ view, layout, locked, enabled, animate }: { view: View; layout: V
   );
 }
 
-function Capture({ onApi }: { onApi: Props["onApi"] }) {
-  const { gl, scene, camera } = useThree();
+/** Night from 6 pm to 7 am on the phone's clock; `?night=1` or `?night=0` forces it for testing. */
+function useNight() {
+  const check = () => {
+    const force = new URLSearchParams(location.search).get("night");
+    if (force) return force === "1";
+    const h = new Date().getHours();
+    return h >= 18 || h < 7;
+  };
+  const [night, setNight] = useState(check); // client only: the village is loaded with ssr off
   useEffect(() => {
-    onApi({
-      capture: () =>
-        new Promise((resolve) => {
-          gl.render(scene, camera); // draw now so the buffer is not empty
-          gl.domElement.toBlob(resolve, "image/png");
-        }),
-    });
-  }, [onApi, gl, scene, camera]);
-  return null;
+    const id = setInterval(() => setNight(check()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  return night;
 }
 
-function Painting({ k }: { k: PaintingKey }) {
-  const tex = useTexture(PAINTINGS[k].url, (t) => {
+function Painting({ k, night }: { k: PaintingKey; night: boolean }) {
+  const tex = useTexture(night ? PAINTINGS[k].night : PAINTINGS[k].url, (t) => {
     t.colorSpace = THREE.SRGBColorSpace;
   });
   return (
@@ -147,7 +154,18 @@ function Painting({ k }: { k: PaintingKey }) {
   );
 }
 
-function BethlehemStar({ glow }: { glow: number }) {
+/** A lantern always lit at night (not a treasure: it is part of the night scene). */
+function NightLantern({ k, at }: { k: PaintingKey; at: Spot }) {
+  const { position, scale } = place(k, at, 0.45);
+  return (
+    <group position={position} scale={scale} rotation={[0.22, 0, 0]}>
+      <P.Lantern p={[0, 0, 0]} forceOn />
+      <P.NightFlame y={1.78} size={1.8} power={14} color="#ffc870" />
+    </group>
+  );
+}
+
+function BethlehemStar({ glow, night }: { glow: number; night: boolean }) {
   const g = useRef<THREE.Group>(null);
   const geo = useMemo(() => P.starGeometry(8, 1, 0.3, 0.3), []);
   useFrame(({ clock }) => {
@@ -165,6 +183,8 @@ function BethlehemStar({ glow }: { glow: number }) {
         </mesh>
       )}
       <P.Glow size={6} opacity={0.9} />
+      {/* At night the star lights the village below it */}
+      {night && <pointLight position={[0, -2, 4]} color="#fff1c4" intensity={60} distance={45} decay={1.2} />}
       <mesh position={[0, -1.6, -0.2]} scale={[0.22, 3.2, 1]}>
         <planeGeometry />
         <meshBasicMaterial color="#fff0c0" transparent opacity={0.35} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
@@ -174,6 +194,7 @@ function BethlehemStar({ glow }: { glow: number }) {
 }
 
 type Props = {
+  night: boolean;
   readDays: number[];
   christmas: boolean;
   eve: boolean;
@@ -210,7 +231,7 @@ function Ready({ onReady }: { onReady: () => void }) {
 }
 
 function Village(props: Props) {
-  const { christmas, eve, quality, reducedMotion, onPick } = props;
+  const { christmas, eve, night, quality, reducedMotion, onPick } = props;
   const k = usePainting();
   const tree = place(k, PIECES.tree.spot[k], TREE_SIZE);
   const star = place(k, PIECES.star.spot[k], 1, true);
@@ -218,7 +239,7 @@ function Village(props: Props) {
   return (
     <>
       <Suspense fallback={null}>
-        <Painting k={k} />
+        <Painting k={k} night={night} />
         <VillageScene
           k={k}
           H={H}
@@ -228,13 +249,14 @@ function Village(props: Props) {
           layout={props.layout[k]}
           fresh={props.fresh}
           arranging={props.arranging}
+          night={night}
           onMove={(key, at) => props.onMove(key, at, k)}
         />
         {props.showStar && (
           <P.Pick onPick={() => onPick("star")}>
             <group position={star.position}>
               <P.Appear pop={props.fresh === "star"}>
-                <BethlehemStar glow={christmas ? 1.4 : eve ? 1.1 : 0.8} />
+                <BethlehemStar glow={(christmas ? 1.4 : eve ? 1.1 : 0.8) + (night ? 0.3 : 0)} night={night} />
               </P.Appear>
             </group>
           </P.Pick>
@@ -246,6 +268,7 @@ function Village(props: Props) {
             state={props.tree}
             days={props.readDays}
             christmas={christmas}
+            night={night}
             editing={props.mode === "tree"}
             selected={props.selected}
             preview={props.preview}
@@ -256,6 +279,7 @@ function Village(props: Props) {
             onOrnamentDown={props.onOrnamentDown}
           />
         )}
+        {night && NIGHT_LANTERNS[k].map((at, i) => <NightLantern key={i} k={k} at={at} />)}
         <Ready onReady={props.onReady} />
       </Suspense>
       {/* Tapping the stable no longer zooms in: it got in the way of moving pieces there. The menu still has "Stable". */}
@@ -263,7 +287,9 @@ function Village(props: Props) {
   );
 }
 
-export default function World(props: Props) {
+export default function World(rest: Omit<Props, "night">) {
+  const night = useNight();
+  const props = { ...rest, night };
   const { quality, reducedMotion } = props;
   useEffect(() => {
     P.motion.on = !reducedMotion;
@@ -279,13 +305,23 @@ export default function World(props: Props) {
       style={{ touchAction: "none" }}
       onPointerMissed={(e) => e.type === "click" && props.onMiss()}
     >
-      <color attach="background" args={["#7cc0f0"]} />
-      {/* Sunny afternoon, lit from the upper left like the painting */}
-      <hemisphereLight args={["#fff6e0", "#7a6040", 2.2]} />
-      <directionalLight position={[-8, 12, 14]} intensity={2.4} color="#fff0d0" />
+      <color attach="background" args={[night ? "#0d1a40" : "#7cc0f0"]} />
+      {night ? (
+        <>
+          {/* Moonlight from the upper right like the night painting, with warm lamp light from the front */}
+          <hemisphereLight args={["#9fb2ff", "#2a2438", 1.1]} />
+          <directionalLight position={[10, 12, 14]} intensity={1.3} color="#c8d4ff" />
+          <directionalLight position={[0, 2, 20]} intensity={0.6} color="#ffc27a" />
+        </>
+      ) : (
+        <>
+          {/* Sunny afternoon, lit from the upper left like the painting */}
+          <hemisphereLight args={["#fff6e0", "#7a6040", 2.2]} />
+          <directionalLight position={[-8, 12, 14]} intensity={2.4} color="#fff0d0" />
+        </>
+      )}
       <Village {...props} />
       <Rig view={props.view} layout={props.layout} locked={props.mode === "tree"} enabled={props.controlsEnabled} animate={!reducedMotion} />
-      <Capture onApi={props.onApi} />
     </Canvas>
   );
 }

@@ -20,7 +20,7 @@ export const pill =
   "inline-flex min-h-11 items-center justify-center gap-1 whitespace-nowrap rounded-full border-[3px] border-[#f5c542] bg-gradient-to-b from-[#fffaf0] to-[#f3dfae] px-4 font-display font-bold text-crimson-dark shadow-[0_3px_0_#c99a3b,0_6px_12px_rgba(60,30,5,0.25)] transition active:translate-y-0.5";
 /** Crimson tab that sits on the top edge of a card ("Today's mission", "Day 3"). */
 export const tag =
-  "absolute -top-5 left-1/2 -translate-x-1/2 rounded-full border-[3px] border-[#f5c542] bg-gradient-to-b from-[#d8333a] to-crimson-dark px-6 py-1.5 font-display text-xl font-bold whitespace-nowrap text-white shadow-md [text-shadow:0_2px_0_#5a0e12]";
+  "absolute -top-5 left-1/2 -translate-x-1/2 rounded-full border-[3px] border-[#f5c542] bg-gradient-to-b from-[#d8333a] to-crimson-dark px-6 py-1.5 font-display text-xl font-bold whitespace-nowrap text-white shadow-md [text-shadow:0_2px_0_#5a0e12] [:lang(ml)_&]:px-4 [:lang(ml)_&]:text-lg";
 /** Crimson XP badge with a gold edge. */
 export const xpPill =
   "inline-flex min-h-9 items-center gap-1.5 rounded-full border-[3px] border-[#f5c542] bg-gradient-to-b from-[#d8333a] to-crimson-dark px-3 font-display font-black whitespace-nowrap text-white shadow-md";

@@ -6,8 +6,9 @@ import { useEffect, useState, type ReactNode } from "react";
 import { BackIcon, BookIcon, CheckIcon, Chevron, Divider, HeartIcon, LockIcon, Ribbon, StarIcon, TabBar, VillageIcon, roundBtn } from "@/components/day";
 import { TreasureArt } from "@/components/TreasureArt";
 import { missions, type Mission } from "@/content/missions";
-import { QUIZ } from "@/content/quiz";
+import { QUIZ, type QuizQuote } from "@/content/quiz";
 import { VerseQuiz } from "@/components/VerseQuiz";
+import { ClampText } from "@/components/ClampText";
 import { makeQuiz } from "@/lib/quiz";
 import { completeMission, completeStep, type FullProgress, loadProgress } from "@/lib/data";
 import { isOpen } from "@/lib/game/unlock";
@@ -102,9 +103,10 @@ export function MissionView({ mission }: { mission: Mission }) {
   const done = (s: Step) => has[s].includes(day);
   // The read step ends with a fill-the-missing-word quiz; "I read it" appears once it is solved.
   // The day's Bible quote when there is one, else the day's own verse.
-  const quote = QUIZ[day]; // English (Douay-Rheims) in both languages until a Malayalam text is added
+  const pickLang = (q: QuizQuote) => (lang === "ml" ? q.ml : q);
+  const quote = QUIZ[day] && pickLang(QUIZ[day]);
   const quiz = quote
-    ? makeQuiz(quote.text, Object.values(QUIZ).filter((q) => q !== quote).map((q) => q!.blank), day, quote.blank)
+    ? makeQuiz(quote.text, Object.entries(QUIZ).filter(([d]) => +d !== day).map(([, q]) => pickLang(q!).blank), day, quote.blank)
     : makeQuiz(m.verse, missions.filter((o) => o.day !== day).map((o) => o[lang].verse), day);
   const quizRef = quote?.ref ?? m.ref;
   const firstOpen = STEP_ORDER.findIndex((s) => !done(s));
@@ -187,7 +189,7 @@ export function MissionView({ mission }: { mission: Mission }) {
         {
           [
             <Part key="read" icon={<BookIcon width={22} height={22} />} title={`1. ${t.stepRead}`} done={done("read")}>
-                    <blockquote className="font-display text-lg leading-relaxed italic">“{m.verse}”</blockquote>
+                    <ClampText lines={5}><blockquote className="font-display text-lg leading-relaxed italic">“{m.verse}”</blockquote></ClampText>
                     <p className="text-sm font-semibold text-ink-soft">— {m.ref}</p>
                     <p className="leading-relaxed">{m.reflection}</p>
                     {quiz && <VerseQuiz key={`${day}-${lang}`} quiz={quiz} quoteRef={quizRef} quoteTitle={quote?.title} solved={quizOk || done("read")} onSolved={() => setQuizOk(true)} />}
@@ -299,13 +301,13 @@ export function MissionView({ mission }: { mission: Mission }) {
             </div>
 
             <div className={`${parch} relative mt-6 flex w-full flex-col items-center gap-3 px-5 pt-9 pb-5`}>
-              <h2 className="absolute -top-6 left-1/2 max-w-[90%] -translate-x-1/2 truncate rounded-full border-[3px] border-[#f5c542] bg-gradient-to-b from-[#d8333a] to-crimson-dark px-8 py-1.5 font-display text-[clamp(1.5rem,7vw,2rem)] font-black whitespace-nowrap text-white shadow-lg [text-shadow:0_2px_0_#5a0e12]">
+              <h2 className={`absolute -top-6 left-1/2 max-w-[90%] -translate-x-1/2 truncate rounded-full border-[3px] border-[#f5c542] bg-gradient-to-b from-[#d8333a] to-crimson-dark px-6 py-1.5 font-display ${[...piece.name[lang]].length > 12 ? "text-[clamp(1.1rem,5vw,1.5rem)]" : "text-[clamp(1.5rem,7vw,2rem)]"} font-black whitespace-nowrap text-white shadow-lg [text-shadow:0_2px_0_#5a0e12]`}>
                 {piece.name[lang]}
               </h2>
               <h3 className="font-display text-2xl leading-tight font-black text-crimson-dark">{m.title}</h3>
               <p className="text-lg leading-snug">{piece.desc[lang]}</p>
               <blockquote className="w-full rounded-xl border-2 border-[#e2c58a] bg-gradient-to-b from-[#fbecc8] to-[#f1d9a4] px-4 py-3 font-display text-lg leading-snug font-bold text-crimson-dark italic shadow-[inset_0_2px_6px_rgba(120,70,10,0.18)]">
-                “{m.verse}”
+                <ClampText lines={4}>“{m.verse}”</ClampText>
                 <span className="mt-1 block text-base font-semibold text-ink not-italic">— {m.ref}</span>
               </blockquote>
               <p className="flex items-center gap-2 rounded-full border-[3px] border-[#f5c542] bg-gradient-to-b from-[#d8333a] to-crimson-dark py-1 pr-6 pl-2 font-display text-2xl font-black text-white shadow-lg">
@@ -313,7 +315,7 @@ export function MissionView({ mission }: { mission: Mission }) {
                 <img src={asset("/treasures/star.webp")} alt="" width={40} height={40} className="-my-2" />+{dayXp} XP
               </p>
               {reward.world !== "tree" && reward.world !== "star" ? (
-                <button type="button" className={`${redBtn} w-full`}
+                <button type="button" className={`${redBtn} w-full px-4! text-[clamp(0.9rem,4.6vw,1.25rem)]! whitespace-nowrap`}
                   // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- /play reads its query once on first render; a full load guarantees it is there
                   onClick={() => location.assign(`/play?place=${reward.world}`)}>
                   <VillageIcon width={28} height={28} className="text-[#f5c542]" />

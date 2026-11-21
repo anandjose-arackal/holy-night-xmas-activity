@@ -22,7 +22,21 @@
 
 @theme inline {
   --font-sans: var(--font-latin), var(--font-ml), system-ui, sans-serif;
-  --font-display: var(--font-serif), var(--font-ml), Georgia, serif;
+  --font-display: var(--font-serif), var(--font-ml-tight), Georgia, serif;
+  --font-tight: var(--font-latin), var(--font-ml-tight), system-ui, sans-serif;
+}
+
+/* Malayalam glyphs stack marks above and below the line, so Latin-tight leading clips them and makes lines collide. */
+:root:lang(ml) {
+  --leading-none: 1.25;
+  --leading-tight: 1.4;
+  --leading-snug: 1.5;
+}
+
+/* Anek has a width axis; Latin fonts here have none, so only Malayalam narrows. */
+:root:lang(ml) .font-display,
+:root:lang(ml) .font-tight {
+  font-stretch: 80%;
 }
 
 body {

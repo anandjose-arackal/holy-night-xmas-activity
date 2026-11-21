@@ -1,9 +1,10 @@
 // Fill-the-missing-word quiz made from a day's verse: one word is hidden and the child picks it from a few choices.
-// Works for any language: words are runs of letters and combining marks (Malayalam vowel signs are marks).
+// Works for any language: words are runs of letters and combining marks (Malayalam vowel signs are marks),
+// plus ZWJ, which old-style Malayalam chillu letters (as in the POC Bible) use mid-word.
 
 export type Quiz = { before: string; answer: string; after: string; options: string[] };
 
-const WORD = /[\p{L}\p{M}]+/gu;
+const WORD = /[\p{L}\p{M}‍]+/gu;
 const len = (w: string) => [...w].length;
 
 /** Small seeded random, so a day always shows the same quiz. */

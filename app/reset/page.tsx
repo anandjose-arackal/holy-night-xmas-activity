@@ -23,7 +23,7 @@ export default function Reset() {
 
   return (
     <main className="day-bg flex min-h-dvh flex-col items-center gap-6 px-4 py-8 landscape:bg-fixed">
-      <Brand title={t.appName} tag={t.journeyTag} />
+      <Brand tag={t.journeyTag} />
       <form action={save} className={`${parch} mt-auto flex w-full max-w-md flex-col gap-4 p-6`}>
         <h2 className="text-center font-display text-3xl font-black text-crimson-dark">{t.newPassword}</h2>
         <Divider />

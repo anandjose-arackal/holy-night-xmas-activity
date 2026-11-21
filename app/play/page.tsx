@@ -25,7 +25,7 @@ import {
   type TreeState,
 } from "@/lib/tree";
 import { pill, redBtn } from "@/lib/ui";
-import { HomeIcon, PencilIcon, XpPill, roundBtn } from "@/components/day";
+import { CloseIcon, HomeIcon, PencilIcon, XpPill, roundBtn } from "@/components/day";
 import { useChild } from "@/lib/useChild";
 import {
   PIECES,
@@ -63,8 +63,8 @@ function Sheet({ title, onClose, closeLabel, children }: { title: string; onClos
     >
       <div className="flex items-center justify-between gap-2">
         <h2 className="font-display text-2xl font-black text-crimson-dark">{title}</h2>
-        <button type="button" className={chip} onClick={onClose}>
-          {closeLabel}
+        <button type="button" aria-label={closeLabel} className={roundBtn} onClick={onClose}>
+          <CloseIcon width={24} height={24} strokeWidth={3} />
         </button>
       </div>
       {children}
@@ -76,7 +76,7 @@ export default function Play() {
   const { t, lang } = useT();
   const ctx = useChild();
   const [ready, setReady] = useState(false); // every village file loaded
-  const api = useRef<WorldApi>({ pick: () => -1, capture: async () => null });
+  const api = useRef<WorldApi>({ pick: () => -1 });
 
   // ?new=8 arrives from the mission page; ?focus=tree deep-links to decorating. Read once.
   const [query] = useState(() => new URLSearchParams(browser ? location.search : ""));
@@ -280,15 +280,6 @@ export default function Play() {
     setView(what);
     setPanel({ t: what });
   }
-  async function picture() {
-    const blob = await api.current.capture();
-    if (!blob) return;
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "bethlehem.png";
-    a.click();
-    URL.revokeObjectURL(a.href);
-  }
 
   const unlockedKinds = ORNAMENT_KINDS.filter((k) => ornamentUnlocked(k, readDays));
   const full = (tree?.items.length ?? 0) >= MAX_ORNAMENTS;
@@ -340,8 +331,9 @@ export default function Play() {
 
       <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between">
         <header className="pointer-events-auto flex items-center justify-between gap-2 p-2 pt-[max(0.5rem,env(safe-area-inset-top))]">
-          <Link href="/home" className={`${pill} min-w-0 truncate px-3 text-sm`} aria-label={t.dashboard}>
-            {child.nickname}
+          <Link href="/home" className={`${pill} min-w-0 px-3 text-sm`} aria-label={t.dashboard}>
+            {/* truncate on the flex pill itself clips both ends; the inner span gets a proper ellipsis */}
+            <span className="truncate">{child.nickname}</span>
           </Link>
           <p className={`${pill} px-3 text-sm`} aria-label={`${t.completed}: ${days.length}/${DAYS}`}>
             ★ {days.length}/{DAYS}
@@ -431,9 +423,6 @@ export default function Play() {
               ))}
             </div>
           </fieldset>
-          <button type="button" className={chip} onClick={picture}>
-            {t.picture}
-          </button>
         </Sheet>
       )}
 
@@ -513,10 +502,7 @@ export default function Play() {
         >
           <h2 className="font-display text-3xl font-black text-crimson-dark">{t.christmasTitle}</h2>
           <p className="text-lg">{t.christmasText}</p>
-          <div className="flex gap-2">
-            <button type="button" className={`${pill} flex-1`} onClick={picture}>
-              {t.picture}
-            </button>
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
               className={`${redBtn} flex-1`}
@@ -594,9 +580,6 @@ export default function Play() {
               onClick={() => confirm(t.confirmReset) && change((s) => ({ ...s, items: [] }))}
             >
               {t.reset}
-            </button>
-            <button type="button" className={chip} onClick={picture}>
-              {t.picture}
             </button>
           </div>
 

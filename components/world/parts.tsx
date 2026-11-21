@@ -3,7 +3,7 @@
 // Procedural low-poly models for Bethlehem. Geometries and materials are created once and shared.
 // To swap one for a GLB later, replace its component here; positions and unlock rules live in lib/village/layout.ts.
 
-import { useFrame, type ThreeEvent } from "@react-three/fiber";
+import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
 
@@ -288,6 +288,32 @@ export function Lantern({ p, forceOn }: { p: V3; forceOn?: boolean }) {
         {(on || forceOn) && <Glow p={[0, 1.78, 0]} size={1.4} opacity={0.6} />}
       </group>
     </Pick>
+  );
+}
+
+/** Warm flickering light on a fire, candle or lantern model at night: a soft glow sprite plus a real light on nearby pieces. */
+export function NightFlame({ y, size, color = "#ffa850", power = 8 }: { y: number; size: number; color?: string; power?: number }) {
+  const light = useRef<THREE.PointLight>(null);
+  const glow = useRef<THREE.Sprite>(null);
+  const spread = useThree((st) => (st.size.width < st.size.height ? 0.7 : 1)); // phones (tall painting): 30% tighter
+  useFrame(({ clock }) => {
+    if (!motion.on) return;
+    const t = clock.elapsedTime;
+    const f = 1 + Math.sin(t * 13) * 0.08 + Math.sin(t * 7.3) * 0.06;
+    if (light.current) light.current.intensity = power * f;
+    if (glow.current) glow.current.scale.setScalar(size * f);
+  });
+  return (
+    <>
+      <sprite ref={glow} position={[0, y, 0.05]} scale={size}>
+        <spriteMaterial map={glowTexture()} color={color} transparent opacity={0.85} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+      </sprite>
+      <pointLight ref={light} position={[0, y + 0.2, 0.4]} color={color} intensity={power} distance={size * 7 * spread} decay={1.2} />
+      {/* Wide warm pool: the painting is not lit by 3D lights, so this sprite is what brightens the ground around the flame */}
+      <sprite position={[0, y * 0.4, 0.02]} scale={size * 10 * spread}>
+        <spriteMaterial map={glowTexture()} color={color} transparent opacity={0.6} depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
+      </sprite>
+    </>
   );
 }
 

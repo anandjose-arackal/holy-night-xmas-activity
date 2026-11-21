@@ -77,7 +77,7 @@ export default function SignIn() {
       </div>
 
       <div className="mt-2 sm:mt-6">
-        <Brand title={t.appName} tag={t.journeyTag} />
+        <Brand tag={t.journeyTag} />
       </div>
 
       <section className={`${parch} mt-auto flex w-full max-w-md flex-col gap-4 p-6 animate-[rise_.7s_ease-out] motion-reduce:animate-none`}>

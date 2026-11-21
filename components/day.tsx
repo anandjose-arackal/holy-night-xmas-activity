@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode, SVGProps } from "react";
+import { asset } from "@/lib/asset";
 import { useT } from "@/lib/i18n";
 import { xpPill } from "@/lib/ui";
 
@@ -14,12 +15,13 @@ export const Divider = () => (
   </div>
 );
 
-/** Big gold app title with its subtitle. */
-export function Brand({ title, tag }: { title: string; tag: string }) {
+/** The gold "Holy Night" headline with its subtitle. */
+export function Brand({ tag }: { tag: string }) {
   return (
     <header className="flex flex-col items-center gap-1 text-center animate-[rise_.6s_ease-out] motion-reduce:animate-none">
-      <h1 className="bg-gradient-to-b from-[#fff3b0] via-[#f5c542] to-[#c47a12] bg-clip-text font-display text-[clamp(2rem,10.5vw,4rem)] leading-tight font-black text-transparent uppercase drop-shadow-[0_3px_0_rgba(110,50,0,0.85)]">
-        {title}
+      <h1 className="w-full max-w-md">
+        {/* eslint-disable-next-line @next/next/no-img-element -- local art with alpha, sized by CSS */}
+        <img src={asset("/brand/holy-night.webp")} alt="Holy Night" width={1000} height={334} className="h-auto w-full drop-shadow-[0_4px_6px_rgba(60,20,0,0.45)]" />
       </h1>
       <p className="font-display text-xl font-bold text-white italic drop-shadow-[0_2px_3px_rgba(0,0,0,0.6)] sm:text-2xl">{tag}</p>
       <div className="mt-1 w-56">
@@ -48,6 +50,7 @@ export const TrophyIcon = (p: Icon) => svg(p, <><path d="M7 4h10v5a5 5 0 0 1-10 
 export const GearIcon = (p: Icon) => svg(p, <><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" /></>);
 export const PencilIcon = (p: Icon) => svg(p, <><path d="M4 20h4L19 9l-4-4L4 16z" /><path d="m13.5 6.5 4 4" /></>);
 export const Chevron = (p: Icon) => svg(p, <path d="m9 5 7 7-7 7" />);
+export const CloseIcon = (p: Icon) => svg(p, <path d="M6 6l12 12M18 6 6 18" />);
 export const BackIcon = (p: Icon) => svg(p, <path d="m15 5-7 7 7 7" />);
 export const CheckIcon = (p: Icon) => svg(p, <path d="m5 12 5 5 9-10" />);
 export const BookIcon = (p: Icon) => svg(p, <><path d="M12 6c-2-1.5-5-2-8-1.5v14c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-14c-3-.5-6 0-8 1.5z" /><path d="M12 6v14" /></>);
@@ -91,7 +94,7 @@ export function TabBar({ current }: { current: (typeof TABS)[number]["key"] }) {
             }`}
           >
             <Icon width={24} height={24} className="text-[#f5c542]" />
-            <span className="max-w-full truncate px-0.5">{t[key]}</span>
+            <span className="max-w-full truncate px-0.5 font-tight">{t[key]}</span>
           </Link>
         );
       })}
@@ -126,7 +129,7 @@ export function Ribbon({ title, top, sub }: { title: ReactNode; top?: ReactNode;
           {title}
         </h1>
       </div>
-      {sub && <div className="relative z-20 -mt-2">{sub}</div>}
+      {sub && <div className="relative z-20 -mt-2 [:lang(ml)_&]:mt-1">{sub}</div>}
     </div>
   );
 }

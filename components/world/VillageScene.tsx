@@ -149,6 +149,7 @@ const king = (robe: keyof typeof P.M) => (
 const STAND_INS: Partial<Record<PieceKey, ReactNode>> = {
   olive: <P.OliveTree p={O} />,
   lilies: <P.Lilies p={O} />,
+  lantern: <P.Lantern p={O} forceOn />, // stand-in until a lantern model exists
   hay: <P.B g="box" m={P.M.hay} p={[0, 0.3, 0]} s={[1, 0.6, 0.6]} />,
   manger: <P.Manger p={O} />,
   donkey: <P.Donkey p={O} />,
@@ -335,6 +336,15 @@ type Props = {
   arranging: boolean;
   /** A piece was moved or turned: [u, v, turn]. */
   onMove: (key: PieceKey, at: [number, number, number]) => void;
+  night: boolean;
+};
+
+/** Pieces that give light at night: where the flame is (share of the piece's height), glow size, light power. */
+const FLAMES: Partial<Record<PieceKey, { y: number; size: number; power: number; color?: string }>> = {
+  fire: { y: 0.45, size: 1.8, power: 18 },
+  firewood: { y: 0.55, size: 1.6, power: 14 },
+  candle: { y: 0.85, size: 1.2, power: 6, color: "#ffc870" },
+  lantern: { y: 0.85, size: 1.2, power: 6, color: "#ffd38a" },
 };
 
 export function VillageScene({
@@ -347,6 +357,7 @@ export function VillageScene({
   fresh,
   arranging,
   onMove,
+  night,
 }: Props) {
   const { camera, gl } = useThree();
   const controls = useThree((s) => s.controls) as MapControlsImpl | null;
@@ -451,7 +462,7 @@ export function VillageScene({
     <>
       {pieces.map((key) => {
         const piece = PIECES[key];
-        if (!piece.glb && !STAND_INS[key]) return null; // no model yet (water jar, oil lantern): not shown until one is added
+        if (!piece.glb && !STAND_INS[key]) return null; // no model yet (water jar): not shown until one is added
         const [u, w, turn] = at(key);
         const { position, scale } = place(k, [u, w]);
         return (
@@ -488,6 +499,14 @@ export function VillageScene({
                       <Fit height={piece.height}>{STAND_INS[key]}</Fit>
                     )}
                   </Turn>
+                  {night && FLAMES[key] && (
+                    <P.NightFlame
+                      y={FLAMES[key].y * piece.height}
+                      size={FLAMES[key].size * piece.height}
+                      power={FLAMES[key].power}
+                      color={FLAMES[key].color}
+                    />
+                  )}
                 </Wiggle>
               </P.Appear>
               {(sel === key || drag?.key === key) && (

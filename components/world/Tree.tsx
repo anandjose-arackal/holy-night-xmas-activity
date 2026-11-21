@@ -87,7 +87,7 @@ function LeafTips() {
   return <instancedMesh ref={ref} args={[G.cone, M.leafDark, tips.length]} castShadow />;
 }
 
-function Lights({ pts, color, on }: { pts: V3[]; color: keyof typeof BULB_COLORS; on: boolean }) {
+function Lights({ pts, color, on, night }: { pts: V3[]; color: keyof typeof BULB_COLORS; on: boolean; night: boolean }) {
   const ref = useRef<THREE.InstancedMesh>(null);
   const mat = useMemo(() => new THREE.MeshBasicMaterial({ toneMapped: false }), []);
   useLayoutEffect(() => {
@@ -111,7 +111,9 @@ function Lights({ pts, color, on }: { pts: V3[]; color: keyof typeof BULB_COLORS
   return (
     <>
       <instancedMesh ref={ref} args={[bulbGeo, mat, pts.length]} />
-      {on && <pointLight position={[0, 2.2, 1.6]} color={BULB_COLORS[color][0]} intensity={10} distance={7} decay={1.5} />}
+      {on && <pointLight position={[0, 2.2, 1.6]} color={BULB_COLORS[color][0]} intensity={night ? 22 : 10} distance={night ? 10 : 7} decay={1.5} />}
+      {/* At night each bulb gets a soft halo so the tree sparkles against the dark */}
+      {on && night && pts.map((p, i) => <Glow key={i} p={p} size={0.55} color={BULB_COLORS[color][i % BULB_COLORS[color].length]} opacity={0.75} />)}
     </>
   );
 }
@@ -244,6 +246,7 @@ type Props = {
   state: TreeState | null;
   days: number[];
   christmas: boolean;
+  night: boolean;
   editing: boolean;
   selected: number;
   preview: { anchor: number; kind: OrnamentKind } | null;
@@ -254,7 +257,7 @@ type Props = {
   onOrnamentDown: (anchor: number, e: PointerEvent) => void;
 };
 
-export function ChristmasTree({ position, scale, state, days, christmas, editing, selected, preview, sparkles, onApi, onPick, onTap, onOrnamentDown }: Props) {
+export function ChristmasTree({ position, scale, state, days, christmas, night, editing, selected, preview, sparkles, onApi, onPick, onTap, onOrnamentDown }: Props) {
   const root = useRef<THREE.Group>(null);
   const foliage = useRef<THREE.Group>(null);
   const topper = useRef<THREE.Group>(null);
@@ -387,7 +390,7 @@ export function ChristmasTree({ position, scale, state, days, christmas, editing
       </Pick>
 
       {surface && has(days, FEATURES.garland) && <Garland pts={surface.garland} />}
-      {surface && lightsUnlocked && <Lights pts={surface.lights[bulbCount]} color={state?.color ?? "champagne"} on={lightsOn} />}
+      {surface && lightsUnlocked && <Lights pts={surface.lights[bulbCount]} color={state?.color ?? "champagne"} on={lightsOn} night={night} />}
 
       {state?.items.map((it) => (
         <Ornament
