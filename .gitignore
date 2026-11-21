@@ -45,3 +45,8 @@ next-env.d.ts
 
 # Claude Code personal settings
 .claude/settings.local.json
+
+# voice model + runtime, copied from node_modules by scripts/copy-vad-assets.mjs
+/public/vad/
+# POC Bible as static files for demo mode (scripts/import-bible.mjs --static)
+/public/bible/

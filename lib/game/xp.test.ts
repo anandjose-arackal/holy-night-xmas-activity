@@ -7,6 +7,11 @@ test("each step pays once per day", () => {
   assert.equal(earned(p), 2 * 10 + 10 + 20 + 5);
 });
 
+test("Mass pays 30 in church, 15 at home, 10 for old ticks; prayer sets pay their stored XP", () => {
+  const p = { ...emptyProgress(), massDays: [1, 2, 3], massXp: { 1: 30, 2: 15 }, prayXp: { 1: 40, 2: 20 } };
+  assert.equal(earned(p), 30 + 15 + 10 + 40 + 20);
+});
+
 test("streak milestones pay once each, from the longest on-time run", () => {
   assert.equal(longestRun([1, 2, 3, 5, 6]), 3);
   const p = { ...emptyProgress(), onTimeDays: [1, 2, 3, 4, 5, 6, 7] };

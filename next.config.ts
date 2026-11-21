@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
       { source: "/models/:file*", headers: year },
       { source: "/treasures/:file*", headers: year },
       { source: "/bg/:file(village-.*)", headers: year },
+      // Voice model and runtime (~6 MB gzipped). Their names do not change between versions, so a week, not a year.
+      { source: "/vad/:file*", headers: [{ key: "Cache-Control", value: "public, max-age=604800" }] },
+      // Only this site may use the microphone (Pray now), never an embedded page.
+      { source: "/:path*", headers: [{ key: "Permissions-Policy", value: "microphone=(self)" }] },
     ];
   },
   partialPrefetching: true,

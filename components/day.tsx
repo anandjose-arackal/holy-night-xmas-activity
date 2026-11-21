@@ -56,6 +56,9 @@ export const CheckIcon = (p: Icon) => svg(p, <path d="m5 12 5 5 9-10" />);
 export const BookIcon = (p: Icon) => svg(p, <><path d="M12 6c-2-1.5-5-2-8-1.5v14c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-14c-3-.5-6 0-8 1.5z" /><path d="M12 6v14" /></>);
 export const StarIcon = (p: Icon) => svg(p, <path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" />);
 export const HeartIcon = (p: Icon) => svg(p, <path d="M12 20s-7-4.5-9-9a4.5 4.5 0 0 1 9-3 4.5 4.5 0 0 1 9 3c-2 4.5-9 9-9 9z" />);
+export const MicIcon = (p: Icon) => svg(p, <><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></>);
+export const ShareIcon = (p: Icon) => svg(p, <><circle cx="18" cy="5" r="2.5" /><circle cx="6" cy="12" r="2.5" /><circle cx="18" cy="19" r="2.5" /><path d="m8.2 10.8 7.6-4.6M8.2 13.2l7.6 4.6" /></>);
+export const DownloadIcon = (p: Icon) => svg(p, <path d="M12 4v11m-5-5 5 5 5-5M5 20h14" />);
 export const GoogleIcon = () => (
   <svg aria-hidden viewBox="0 0 48 48" width={26} height={26}>
     <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />

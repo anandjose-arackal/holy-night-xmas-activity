@@ -3,16 +3,21 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
-import { BackIcon, BookIcon, CheckIcon, Chevron, Divider, HeartIcon, LockIcon, Ribbon, StarIcon, TabBar, VillageIcon, roundBtn } from "@/components/day";
+import { BackIcon, BookIcon, CheckIcon, Chevron, Divider, HeartIcon, LockIcon, MicIcon, Ribbon, ShareIcon, StarIcon, TabBar, VillageIcon, roundBtn } from "@/components/day";
+import { PrayerSheet } from "@/components/PrayerSheet";
+import { VerseShare } from "@/components/VerseShare";
+import { useXpPop } from "@/components/XpPop";
+import { DAY_PRAYERS } from "@/content/prayers";
 import { TreasureArt } from "@/components/TreasureArt";
 import { missions, type Mission } from "@/content/missions";
 import { QUIZ, type QuizQuote } from "@/content/quiz";
 import { VerseQuiz } from "@/components/VerseQuiz";
 import { ClampText } from "@/components/ClampText";
 import { makeQuiz } from "@/lib/quiz";
-import { completeMission, completeStep, type FullProgress, loadProgress } from "@/lib/data";
+import { completeMission, completePrayer, completeStep, type FullProgress, loadProgress } from "@/lib/data";
 import { isOpen } from "@/lib/game/unlock";
-import { XP, type Step } from "@/lib/game/xp";
+import { MASS_HOME, XP, type Step } from "@/lib/game/xp";
+import { prayXp } from "@/lib/voice/accumulator";
 import { useT } from "@/lib/i18n";
 import { asset } from "@/lib/asset";
 import { parch, pill, redBtn, tag } from "@/lib/ui";
@@ -20,6 +25,7 @@ import { useChild } from "@/lib/useChild";
 import { PIECES, TREE_NAMES, rewardForDay } from "@/lib/village/layout";
 
 const STEP_ORDER: Step[] = ["read", "mass", "task"];
+const VOICE = process.env.NEXT_PUBLIC_VOICE === "1"; // Pray now, until the field test is done
 
 const shell =
   "day-bg flex min-h-dvh flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] text-ink landscape:bg-fixed";
@@ -62,6 +68,8 @@ export function MissionView({ mission }: { mission: Mission }) {
   const [busy, setBusy] = useState<Step | null>(null);
   const [quizOk, setQuizOk] = useState(false);
   const [error, setError] = useState(false);
+  const [sheet, setSheet] = useState<"pray" | "share" | null>(null);
+  const xpPop = useXpPop();
   // After the task: the treasure unlock, then the day's story, each as its own full-screen scene.
   const asked = useSearchParams().get("step"); // from the dashboard's activity links
   const [scene, setScene] = useState<"unlock" | "story" | null>(asked === "story" ? "story" : null);
@@ -137,14 +145,16 @@ export function MissionView({ mission }: { mission: Mission }) {
     );
   }
 
-  async function finish(step: Step) {
+  async function finish(step: Step, church = false) {
     setBusy(step);
     setError(false);
     try {
       if (step === "task") await completeMission(child.id, day);
-      else await completeStep(child.id, day, step);
+      else await completeStep(child.id, day, step, church);
       const key = step === "read" ? "readDays" : step === "mass" ? "massDays" : step === "task" ? "taskDays" : "storyDays";
-      setProg((p) => p && { ...p, [key]: [...p[key], day] });
+      const gained = step === "mass" ? (church ? XP.mass : MASS_HOME) : XP[step];
+      setProg((p) => p && { ...p, [key]: [...p[key], day], massXp: step === "mass" ? { ...p.massXp, [day]: gained } : p.massXp });
+      xpPop.pop(`+${gained} XP`);
       if (step === "read" || step === "mass") go(STEP_ORDER.indexOf(step) + 1);
       if (step === "task") setScene("unlock");
       if (step === "story") router.push("/home");
@@ -153,7 +163,19 @@ export function MissionView({ mission }: { mission: Mission }) {
     }
     setBusy(null);
   }
-  const dayXp = (["read", "mass", "task", "story"] as Step[]).filter((s) => done(s) || s === "task").reduce((sum, s) => sum + XP[s], 0);
+  const massXp = prog.massXp[day] ?? 10; // a tick from before church/home counts 10
+  const dayXp =
+    (done("read") ? XP.read : 0) + (done("mass") ? massXp : 0) + XP.task + (done("story") ? XP.story : 0) + (prog.prayXp[day] ?? 0);
+  const prayers = VOICE ? DAY_PRAYERS[day] : undefined;
+  const prayedVoice = prog.prayVoiceDays.includes(day);
+  async function savePrayer(secs: number | null) {
+    const before = prog!.prayXp[day];
+    const xp = await completePrayer(child.id, day, prayers!, secs);
+    setProg((p) => p && { ...p, prayXp: { ...p.prayXp, [day]: xp }, prayVoiceDays: secs == null ? p.prayVoiceDays : [...p.prayVoiceDays, day] });
+    const base = prayXp(prayers!, false);
+    if (before == null) xpPop.pop(`+${base} XP`);
+    if (secs != null && xp > base) xpPop.pop(`+${xp - base} XP · ${t.prayVoiceBonus}`, before == null ? 500 : 0);
+  }
 
   return (
     <main className={shell}>
@@ -190,7 +212,12 @@ export function MissionView({ mission }: { mission: Mission }) {
           [
             <Part key="read" icon={<BookIcon width={22} height={22} />} title={`1. ${t.stepRead}`} done={done("read")}>
                     <ClampText lines={5}><blockquote className="font-display text-lg leading-relaxed italic">“{m.verse}”</blockquote></ClampText>
-                    <p className="text-sm font-semibold text-ink-soft">— {m.ref}</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-semibold text-ink-soft">— {m.ref}</p>
+                      <button type="button" aria-label={t.shareVerse} onClick={() => setSheet("share")} className="flex size-11 shrink-0 items-center justify-center rounded-full border-[3px] border-[#f5c542] bg-[#fffaf0] text-crimson-dark shadow">
+                        <ShareIcon width={22} height={22} strokeWidth={2.2} />
+                      </button>
+                    </div>
                     <p className="leading-relaxed">{m.reflection}</p>
                     {quiz && <VerseQuiz key={`${day}-${lang}`} quiz={quiz} quoteRef={quizRef} quoteTitle={quote?.title} solved={quizOk || done("read")} onSolved={() => setQuizOk(true)} />}
                     {done("read") ? (
@@ -205,14 +232,14 @@ export function MissionView({ mission }: { mission: Mission }) {
                     <p className="font-display leading-relaxed italic">{m.massPrayer}</p>
                     <p className="text-sm text-ink-soft">{t.massNote}</p>
                     {done("mass") ? (
-                      <Done label={`+${XP.mass} XP`} />
+                      <Done label={`+${massXp} XP`} />
                     ) : (
                       <div className="flex flex-wrap gap-2">
-                        <button type="button" className={ghostBtn} disabled={!!busy} onClick={() => finish("mass")}>
-                          {t.massWent}
+                        <button type="button" className={ghostBtn} disabled={!!busy} onClick={() => finish("mass", true)}>
+                          {t.massWent} · +{XP.mass} XP
                         </button>
-                        <button type="button" className={ghostBtn} disabled={!!busy} onClick={() => finish("mass")}>
-                          {t.massHome}
+                        <button type="button" className={ghostBtn} disabled={!!busy} onClick={() => finish("mass", false)}>
+                          {t.massHome} · +{MASS_HOME} XP
                         </button>
                       </div>
                     )}
@@ -220,6 +247,17 @@ export function MissionView({ mission }: { mission: Mission }) {
             <Part key="task" icon={<StarIcon width={22} height={22} />} title={`3. ${t.stepTask}`} done={done("task")}>
                     <p className="text-lg leading-relaxed">{m.task}</p>
                     <p className="font-display leading-relaxed italic">{m.prayer}</p>
+                    {prayers &&
+                      (prayedVoice ? (
+                        <Done label={`${t.prayDone} · +${prog.prayXp[day]} XP`} />
+                      ) : (
+                        <>
+                          {prog.prayXp[day] != null && <Done label={`${t.prayDone} · +${prog.prayXp[day]} XP`} />}
+                          <button type="button" className={`${ghostBtn} min-h-12 text-lg`} onClick={() => setSheet("pray")}>
+                            <MicIcon width={22} height={22} /> {t.prayNow} · +{prayXp(prayers, true)} XP
+                          </button>
+                        </>
+                      ))}
                     {done("task") ? (
                       <Done label={t.completed} />
                     ) : (
@@ -267,6 +305,10 @@ export function MissionView({ mission }: { mission: Mission }) {
 
         <TabBar current="activities" />
       </div>
+
+      {sheet === "pray" && prayers && <PrayerSheet set={prayers} t={t} lang={lang} onSave={savePrayer} onClose={() => setSheet(null)} />}
+      {sheet === "share" && <VerseShare verse={m.verse} verseRef={m.ref} fileName={`verse-day-${day}`} t={t} onClose={() => setSheet(null)} />}
+      {xpPop.node}
 
       {scene === "unlock" && (
         <section

@@ -182,11 +182,17 @@ export default function Home() {
           </>
         )}
 
-        {/* Settings: children, parish, leaderboard choice, sign-out */}
-        <Link href="/children" className={`${pill} gap-2 self-center px-5`}>
-          <GearIcon width={22} height={22} strokeWidth={2.2} />
-          {t.settings}
-        </Link>
+        <div className="flex flex-wrap justify-center gap-2">
+          <Link href="/bible" className={`${pill} gap-2 px-5`}>
+            <BookIcon width={22} height={22} strokeWidth={2.2} />
+            {t.bible}
+          </Link>
+          {/* Settings: children, parish, leaderboard choice, sign-out */}
+          <Link href="/children" className={`${pill} gap-2 px-5`}>
+            <GearIcon width={22} height={22} strokeWidth={2.2} />
+            {t.settings}
+          </Link>
+        </div>
 
         <TabBar current="home" />
       </div>

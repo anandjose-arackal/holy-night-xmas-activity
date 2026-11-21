@@ -27,6 +27,11 @@ export default function Privacy() {
       <ul>
         <li>No birth dates, photos, home address or location, or anything a child types.</li>
         <li>No advertising, no tracking, and no selling or sharing of data.</li>
+        <li>
+          No voice recordings. Pray now uses the microphone only while that prayer is open, to check that your child is
+          speaking aloud. Audio stays on this phone and is never recorded, stored or uploaded, and no words are
+          transcribed. We keep only that the prayer was done and the number of seconds spoken.
+        </li>
       </ul>
 
       <h2>Where it is kept</h2>

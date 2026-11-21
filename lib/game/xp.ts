@@ -7,7 +7,9 @@ export type Step = "read" | "mass" | "task" | "story";
 export const STEPS: Step[] = ["read", "mass", "task", "story"];
 
 /** XP for each step of a day. */
-export const XP: Record<Step, number> = { read: 10, mass: 10, task: 20, story: 5 };
+export const XP: Record<Step, number> = { read: 10, mass: 30, task: 20, story: 5 };
+/** Mass prayed at home (Mass in church is XP.mass). Mass ticked before 013 has no stored XP and counts 10. */
+export const MASS_HOME = 15;
 
 /** A run of tasks done on their own day reaching these lengths pays once each. */
 export const STREAK_BONUS: [days: number, xp: number][] = [
@@ -47,10 +49,15 @@ export type Progress = {
   onTimeDays: number[];
   /** Mass days ticked on their own date: only these count towards the Mass gifts (catch-ups do not). */
   massOnTimeDays: number[];
+  /** XP stored for each Mass day (30 church, 15 home); a day missing here is an old tick worth 10. */
+  massXp: Record<number, number>;
+  /** XP of each day's prayer set (Pray now), and the days it was voice-checked. */
+  prayXp: Record<number, number>;
+  prayVoiceDays: number[];
   bonus: BonusKey[];
 };
 
-export const emptyProgress = (): Progress => ({ taskDays: [], readDays: [], massDays: [], storyDays: [], onTimeDays: [], massOnTimeDays: [], bonus: [] });
+export const emptyProgress = (): Progress => ({ taskDays: [], readDays: [], massDays: [], storyDays: [], onTimeDays: [], massOnTimeDays: [], massXp: {}, prayXp: {}, prayVoiceDays: [], bonus: [] });
 
 /** Longest run of consecutive day numbers. */
 export function longestRun(days: number[]) {
@@ -81,7 +88,8 @@ export function earned(p: Progress) {
   const run = longestRun(p.onTimeDays);
   return (
     new Set(p.readDays).size * XP.read +
-    new Set(p.massDays).size * XP.mass +
+    [...new Set(p.massDays)].reduce((sum, d) => sum + (p.massXp[d] ?? 10), 0) +
+    Object.values(p.prayXp).reduce((sum, x) => sum + x, 0) +
     new Set(p.taskDays).size * XP.task +
     new Set(p.storyDays).size * XP.story +
     STREAK_BONUS.filter(([days]) => run >= days).reduce((sum, [, xp]) => sum + xp, 0)

@@ -1,7 +1,9 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Lang } from "@/content/missions";
 import { type Campaign, DEFAULT_CAMPAIGN, isOpen, localDate, now, openDate } from "@/lib/game/unlock";
-import { canBuy, earned, type Progress, type Step } from "@/lib/game/xp";
+import { MASS_HOME, XP, canBuy, earned, type Progress, type Step } from "@/lib/game/xp";
+import type { PrayerSet } from "@/content/prayers";
+import { hasBig, prayXp, repsOf } from "@/lib/voice/accumulator";
 import type { TreeState } from "@/lib/tree";
 import type { BonusKey, VillageLayout } from "@/lib/village/layout";
 
@@ -154,7 +156,18 @@ export async function deleteAccount() {
 // ---- Day steps, XP, the village layout and the leaderboard ----
 
 /** Demo-mode record of everything except task days (those live on the child, as before). */
-type LocalProgress = { read: number[]; mass: number[]; story: number[]; taskDates: Record<number, string>; massDates: Record<number, string>; bonus: BonusKey[]; layout: unknown };
+type LocalProgress = {
+  read: number[];
+  mass: number[];
+  story: number[];
+  taskDates: Record<number, string>;
+  massDates: Record<number, string>;
+  massXp: Record<number, number>;
+  prayXp: Record<number, number>;
+  prayVoice: number[];
+  bonus: BonusKey[];
+  layout: unknown;
+};
 const progressKey = (id: string) => `progress-${id}`;
 const readProgress = (id: string): LocalProgress => ({
   read: [],
@@ -162,6 +175,9 @@ const readProgress = (id: string): LocalProgress => ({
   story: [],
   taskDates: {},
   massDates: {},
+  massXp: {},
+  prayXp: {},
+  prayVoice: [],
   bonus: [],
   layout: null,
   ...JSON.parse(localStorage.getItem(progressKey(id)) ?? "{}"),
@@ -184,6 +200,9 @@ export async function loadProgress(child: Child): Promise<FullProgress> {
       storyDays: p.story,
       onTimeDays: child.days.filter((d) => onTime(d, p.taskDates[d], c)),
       massOnTimeDays: p.mass.filter((d) => onTime(d, p.massDates[d], c)),
+      massXp: p.massXp,
+      prayXp: p.prayXp,
+      prayVoiceDays: p.prayVoice,
       bonus: p.bonus,
       layout: p.layout,
     };
@@ -195,11 +214,12 @@ export async function loadProgress(child: Child): Promise<FullProgress> {
     });
   const [tasks, steps, bonus, layout] = await Promise.all([
     by<{ day: number; completed_at: string }>(supabase.from("completions").select("day, completed_at").eq("child_id", child.id).eq("campaign_id", c.id!)),
-    by<{ day: number; step: Step; done_at: string }>(supabase.from("day_steps").select("day, step, done_at").eq("child_id", child.id).eq("campaign_id", c.id!)),
+    by<{ day: number; step: Step | "pray"; done_at: string; xp: number | null; speech_seconds: number | null }>(supabase.from("day_steps").select("day, step, done_at, xp, speech_seconds").eq("child_id", child.id).eq("campaign_id", c.id!)),
     by<{ item: BonusKey }>(supabase.from("bonus_unlocks").select("item").eq("child_id", child.id).eq("campaign_id", c.id!)),
     by<{ data: unknown }>(supabase.from("village_layout").select("data").eq("child_id", child.id).eq("campaign_id", c.id!)),
   ]);
   const of = (s: Step) => steps.filter((x) => x.step === s).map((x) => x.day);
+  const xpOf = (s: Step | "pray") => Object.fromEntries(steps.filter((x) => x.step === s && x.xp != null).map((x) => [x.day, x.xp!]));
   return {
     taskDays: tasks.map((t) => t.day),
     readDays: of("read"),
@@ -207,21 +227,47 @@ export async function loadProgress(child: Child): Promise<FullProgress> {
     storyDays: of("story"),
     onTimeDays: tasks.filter((t) => onTime(t.day, t.completed_at, c)).map((t) => t.day),
     massOnTimeDays: steps.filter((x) => x.step === "mass" && onTime(x.day, x.done_at, c)).map((x) => x.day),
+    massXp: xpOf("mass"),
+    prayXp: xpOf("pray"),
+    prayVoiceDays: steps.filter((x) => x.step === "pray" && x.speech_seconds != null).map((x) => x.day),
     bonus: bonus.map((b) => b.item),
     layout: layout[0]?.data ?? null,
   };
 }
 
-/** Read, Mass or Story for a day. Safe to call twice. The task step is completeMission(). */
-export async function completeStep(id: string, day: number, step: Exclude<Step, "task">) {
+/** Read, Mass or Story for a day. Safe to call twice. The task step is completeMission(). `church`: Mass in church (30 XP) or at home (15). */
+export async function completeStep(id: string, day: number, step: Exclude<Step, "task">, church = false) {
   if (!supabase) {
     if (!isOpen(day)) throw new Error("day locked");
     const p = readProgress(id);
-    const massDates = step === "mass" ? { [day]: now().toISOString(), ...p.massDates } : p.massDates; // first tick wins
-    return writeProgress(id, { ...p, [step]: [...new Set([...p[step], day])], massDates });
+    const first = step === "mass" && !p.mass.includes(day); // first tick wins
+    const massDates = first ? { ...p.massDates, [day]: now().toISOString() } : p.massDates;
+    const massXp = first ? { ...p.massXp, [day]: church ? XP.mass : MASS_HOME } : p.massXp;
+    return writeProgress(id, { ...p, [step]: [...new Set([...p[step], day])], massDates, massXp });
   }
-  const { error } = await supabase.rpc("complete_step", { p_child: id, p_day: day, p_step: step });
+  const { error } = await supabase.rpc("complete_step", { p_child: id, p_day: day, p_step: step, p_church: church });
   if (error) throw error;
+}
+
+/** A day's prayer set (Pray now). `speechSeconds` only when the voice check passed; the server prices it. Returns the XP. */
+export async function completePrayer(id: string, day: number, set: PrayerSet, speechSeconds: number | null) {
+  const xp = prayXp(set, speechSeconds != null);
+  if (!supabase) {
+    if (!isOpen(day)) throw new Error("day locked");
+    const p = readProgress(id);
+    if (p.prayXp[day] != null && (p.prayVoice.includes(day) || speechSeconds == null)) return p.prayXp[day]; // pays once; voice may upgrade a manual tick
+    writeProgress(id, { ...p, prayXp: { ...p.prayXp, [day]: xp }, prayVoice: speechSeconds == null ? p.prayVoice : [...p.prayVoice, day] });
+    return xp;
+  }
+  const { error } = await supabase.rpc("complete_prayer", {
+    p_child: id,
+    p_day: day,
+    p_reps: repsOf(set),
+    p_big: hasBig(set),
+    p_speech_seconds: speechSeconds == null ? null : Math.min(600, Math.round(speechSeconds)),
+  });
+  if (error) throw error;
+  return xp;
 }
 
 /** The database re-counts the child's XP before it allows a purchase. */

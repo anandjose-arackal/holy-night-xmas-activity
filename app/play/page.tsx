@@ -84,9 +84,8 @@ export default function Play() {
   const placeKey = query.get("place") as PieceKey | null; // from "Place in Village" on the treasure screens
   const [mode, setMode] = useState<"world" | "tree">(query.get("focus") === "tree" ? "tree" : "world");
   const [arranging, setArranging] = useState(false); // moving and turning pieces
-  const [view, setView] = useState<View>(() =>
-    mode === "tree" ? "tree" : placeKey && placeKey in PIECES ? placeKey : (rewardForDay(fresh)?.world ?? "home"),
-  );
+  // Arriving from a finished task (?place= / ?new=) opens on the whole village; the new piece pops in place, no zoom.
+  const [view, setView] = useState<View>(() => (mode === "tree" ? "tree" : "home"));
   const [panel, setPanel] = useState<Panel | null>(fresh ? { t: "reward", day: fresh } : null);
   const [reducedMotion] = useState(() => browser && matchMedia("(prefers-reduced-motion: reduce)").matches);
   const [quality, setQuality] = useState<Quality>(() => {
