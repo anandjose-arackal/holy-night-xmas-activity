@@ -12,6 +12,10 @@ test("Mass pays 30 in church, 15 at home, 10 for old ticks; prayer sets pay thei
   assert.equal(earned(p), 30 + 15 + 10 + 40 + 20);
 });
 
+test("shared pictures add their XP", () => {
+  assert.equal(earned({ ...emptyProgress(), shareXp: 60 }), 60);
+});
+
 test("streak milestones pay once each, from the longest on-time run", () => {
   assert.equal(longestRun([1, 2, 3, 5, 6]), 3);
   const p = { ...emptyProgress(), onTimeDays: [1, 2, 3, 4, 5, 6, 7] };

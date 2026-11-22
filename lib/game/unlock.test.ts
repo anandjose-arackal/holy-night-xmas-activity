@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { DEFAULT_CAMPAIGN as c, isChristmas, isChristmasEve, isOpen, openDate, todayDay } from "./unlock.ts";
+import { DEFAULT_CAMPAIGN as c, daysToChristmas, isChristmas, isChristmasEve, isOpen, openDate, todayDay } from "./unlock.ts";
 
 // Noon in Kolkata.
 const d = (s: string) => new Date(`${s}T06:30:00Z`);
@@ -46,4 +46,11 @@ test("after Christmas everything stays open", () => {
     assert.equal(isOpen(25, c, d(s)), true);
     assert.equal(isChristmas(c, d(s)), true);
   }
+});
+
+test("days to Christmas count down in Kolkata time", () => {
+  assert.equal(daysToChristmas(c, d("2026-11-29")), 26);
+  assert.equal(daysToChristmas(c, d("2026-12-24")), 1);
+  assert.equal(daysToChristmas(c, d("2026-12-25")), 0);
+  assert.equal(daysToChristmas(c, new Date("2026-12-24T19:00:00Z")), 0); // already 25 Dec, 00:30 in Kolkata
 });

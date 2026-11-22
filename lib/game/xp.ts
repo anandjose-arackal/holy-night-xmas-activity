@@ -10,6 +10,9 @@ export const STEPS: Step[] = ["read", "mass", "task", "story"];
 export const XP: Record<Step, number> = { read: 10, mass: 30, task: 20, story: 5 };
 /** Mass prayed at home (Mass in church is XP.mass). Mass ticked before 013 has no stored XP and counts 10. */
 export const MASS_HOME = 15;
+/** Sharing a verse picture: XP per share and shares that pay per day. Mirrored in SQL 016. */
+export const SHARE_XP = 20;
+export const SHARES_A_DAY = 3;
 
 /** A run of tasks done on their own day reaching these lengths pays once each. */
 export const STREAK_BONUS: [days: number, xp: number][] = [
@@ -54,10 +57,12 @@ export type Progress = {
   /** XP of each day's prayer set (Pray now), and the days it was voice-checked. */
   prayXp: Record<number, number>;
   prayVoiceDays: number[];
+  /** XP from sharing verse pictures (20 a share, at most 3 a day). */
+  shareXp: number;
   bonus: BonusKey[];
 };
 
-export const emptyProgress = (): Progress => ({ taskDays: [], readDays: [], massDays: [], storyDays: [], onTimeDays: [], massOnTimeDays: [], massXp: {}, prayXp: {}, prayVoiceDays: [], bonus: [] });
+export const emptyProgress = (): Progress => ({ taskDays: [], readDays: [], massDays: [], storyDays: [], onTimeDays: [], massOnTimeDays: [], massXp: {}, prayXp: {}, prayVoiceDays: [], shareXp: 0, bonus: [] });
 
 /** Longest run of consecutive day numbers. */
 export function longestRun(days: number[]) {
@@ -90,6 +95,7 @@ export function earned(p: Progress) {
     new Set(p.readDays).size * XP.read +
     [...new Set(p.massDays)].reduce((sum, d) => sum + (p.massXp[d] ?? 10), 0) +
     Object.values(p.prayXp).reduce((sum, x) => sum + x, 0) +
+    p.shareXp +
     new Set(p.taskDays).size * XP.task +
     new Set(p.storyDays).size * XP.story +
     STREAK_BONUS.filter(([days]) => run >= days).reduce((sum, [, xp]) => sum + xp, 0)

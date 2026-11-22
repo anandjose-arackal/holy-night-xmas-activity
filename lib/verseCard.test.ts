@@ -19,6 +19,12 @@ test("long verse shrinks until it fits, and every line fits the width", () => {
   assert.equal(f.lines.join(" "), text.trim().split(/\s+/).join(" ")); // no word lost
 });
 
+test("a single word wider than the box shrinks the text too", () => {
+  const f = fitText("ദൈവത്തോടുകൂടെയായിരുന്നു", 400, 2000, measure); // 24 chars: fits at size <= 33
+  assert.ok(measure(f.lines[0], f.size) <= 400 || f.size === 36);
+  assert.ok(f.size < 84);
+});
+
 test("stops at the minimum size even when it cannot fit", () => {
   const f = fitText("word ".repeat(500), 300, 100, measure);
   assert.equal(f.size, 36);

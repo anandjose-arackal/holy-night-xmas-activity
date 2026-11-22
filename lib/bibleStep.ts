@@ -15,3 +15,24 @@ export function step(list: Book[], book: number, ch: number, dir: 1 | -1): { b: 
   return next ? { b: next.id, c: dir === 1 ? 1 : next.chapters } : null;
 }
 
+
+// POC book ids for the English names used in content/missions.ts refs.
+// shortcut: only books the missions cite; add a name here when a mission cites a new book.
+const BOOK_IDS: Record<string, number> = {
+  Exodus: 2, Proverbs: 24, Isaiah: 29, Matthew: 47, Mark: 48, Luke: 49, John: 50, Romans: 52, Philippians: 57,
+};
+
+/** "John 1:6-8, 19-28" -> book 50, chapter 1, verses 6..8 and 19..28. null if the book or format is unknown. */
+export function parseRef(ref: string): { b: number; c: number; verses: number[] } | null {
+  const m = /^(.+?) (\d+):([\d\s,-]+)$/.exec(ref.trim());
+  const b = m && BOOK_IDS[m[1]];
+  if (!m || !b) return null;
+  const verses = m[3].split(",").flatMap((part) => {
+    const [from, to = from] = part.trim().split("-").map(Number);
+    return Array.from({ length: Math.max(0, to - from + 1) }, (_, i) => from + i);
+  });
+  return { b, c: Number(m[2]), verses };
+}
+
+/** Verses for the reader's ?v= ("6-8,19-28"), the same shape a ref ends with. */
+export const parseVerses = (v: string | null) => (v ? (parseRef(`John 1:${v}`)?.verses ?? []) : []);

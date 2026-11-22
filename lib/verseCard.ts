@@ -20,7 +20,8 @@ export function fitText(text: string, width: number, height: number, measure: (s
       } else line = next;
     }
     if (line) lines.push(line);
-    if (lines.length * size * lh <= height || size <= min) return { size, lines, lh };
+    const fits = lines.length * size * lh <= height && lines.every((l) => measure(l, size) <= width); // one long word can be wider than the box
+    if (fits || size <= min) return { size, lines, lh };
   }
 }
 
@@ -32,8 +33,46 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.roundRect(x, y, w, h, r);
 }
 
-/** `bg` is the Bethlehem art for the golden and moonlit themes (null while it loads or for the plain ones). */
-export function drawVerseCard(ctx: CanvasRenderingContext2D, o: { verse: string; ref: string; theme: CardTheme; font: string; bg: HTMLImageElement | null }) {
+/** Eight-pointed Star of Bethlehem with a soft glow. */
+function star(ctx: CanvasRenderingContext2D, x: number, y: number, r: number) {
+  const glow = ctx.createRadialGradient(x, y, 0, x, y, r * 3.2);
+  glow.addColorStop(0, "rgba(255,240,190,0.95)");
+  glow.addColorStop(0.35, "rgba(255,214,110,0.45)");
+  glow.addColorStop(1, "rgba(255,214,110,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(x - r * 3.2, y - r * 3.2, r * 6.4, r * 6.4);
+  ctx.beginPath();
+  for (let i = 0; i < 16; i++) {
+    const a = (i * Math.PI) / 8 - Math.PI / 2;
+    const len = i % 4 === 0 ? r : i % 2 === 0 ? r * 0.55 : r * 0.22; // long cross points, short diagonals
+    ctx.lineTo(x + Math.cos(a) * len, y + Math.sin(a) * len);
+  }
+  ctx.closePath();
+  const fill = ctx.createLinearGradient(x, y - r, x, y + r);
+  fill.addColorStop(0, "#fff6d6");
+  fill.addColorStop(1, "#e8b440");
+  ctx.fillStyle = fill;
+  ctx.fill();
+}
+
+/** Small gold diamond, for the frame's corners. */
+function diamond(ctx: CanvasRenderingContext2D, x: number, y: number, s: number) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(Math.PI / 4);
+  ctx.fillStyle = GOLD;
+  ctx.fillRect(-s / 2, -s / 2, s, s);
+  ctx.restore();
+}
+
+/**
+ * `bg` is the Bethlehem art for the golden and moonlit themes (null while it loads or for the plain ones).
+ * `badge` is the countdown ("ക്രിസ്മസിന് ഇനി 12 ദിവസം") drawn as a ribbon on the panel's top edge; omitted after Christmas.
+ */
+export function drawVerseCard(
+  ctx: CanvasRenderingContext2D,
+  o: { verse: string; ref: string; theme: CardTheme; font: string; bg: HTMLImageElement | null; badge?: string },
+) {
   const { theme } = o;
   ctx.clearRect(0, 0, CARD_W, CARD_H);
 
@@ -61,6 +100,7 @@ export function drawVerseCard(ctx: CanvasRenderingContext2D, o: { verse: string;
 
   // Ivory panel with a gold frame (Minimal Cream: no panel, a thin gold rule instead)
   const px = 90, py = 300, pw = CARD_W - 180, ph = 1260;
+  star(ctx, CARD_W / 2, 150, 70);
   if (theme !== "cream") {
     ctx.save();
     ctx.shadowColor = "rgba(40,20,0,0.35)";
@@ -81,18 +121,31 @@ export function drawVerseCard(ctx: CanvasRenderingContext2D, o: { verse: string;
     ctx.strokeStyle = "rgba(201,150,46,0.6)";
     roundRect(ctx, px + 22, py + 22, pw - 44, ph - 44, 40);
     ctx.stroke();
+    for (const [x, y] of [[px + 22, py + 22], [px + pw - 22, py + 22], [px + 22, py + ph - 22], [px + pw - 22, py + ph - 22]]) diamond(ctx, x, y, 22);
   }
+
+  // A large, faint opening quote mark behind the verse
+  ctx.save();
+  ctx.globalAlpha = 0.22;
+  ctx.fillStyle = GOLD;
+  ctx.font = `900 320px Georgia, serif`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
+  ctx.fillText("“", px + 50, py + 30);
+  ctx.restore();
 
   // Verse, centred in the panel
   ctx.fillStyle = BURGUNDY;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   const boxTop = py + 90, boxH = ph - 230 - 50 - 90; // between the frame's top and the gold rule above the reference
-  const fit = fitText(o.verse, pw - 160, boxH, (s, size) => {
-    ctx.font = `700 ${size}px ${o.font}`;
+  // "condensed": the 80% width the site gives Malayalam (Anek has a width axis); the canvas ignores CSS font-stretch.
+  const verseFont = (size: number) => `condensed 700 ${size}px ${o.font}`;
+  const fit = fitText(o.verse, pw - 120, boxH, (s, size) => {
+    ctx.font = verseFont(size);
     return ctx.measureText(s).width;
   });
-  ctx.font = `700 ${fit.size}px ${o.font}`;
+  ctx.font = verseFont(fit.size);
   const step = fit.size * fit.lh;
   const top = boxTop + (boxH - fit.lines.length * step) / 2 + step / 2;
   fit.lines.forEach((l, i) => ctx.fillText(l, CARD_W / 2, top + i * step));
@@ -127,4 +180,28 @@ export function drawVerseCard(ctx: CanvasRenderingContext2D, o: { verse: string;
   ctx.stroke();
   ctx.fillStyle = "#ffffff";
   ctx.fillText(o.ref, CARD_W / 2, ry + 112, rw - 60);
+
+  // Countdown ribbon across the panel's top edge
+  if (o.badge) {
+    ctx.font = `700 50px ${o.font}`;
+    const bw = Math.min(pw - 40, ctx.measureText(o.badge).width + 140);
+    const bx = (CARD_W - bw) / 2, by = py - 52;
+    const rib = ctx.createLinearGradient(0, by, 0, by + 104);
+    rib.addColorStop(0, "#d8333a");
+    rib.addColorStop(1, "#7e1418");
+    ctx.save();
+    ctx.shadowColor = "rgba(60,10,10,0.4)";
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetY = 6;
+    ctx.fillStyle = rib;
+    roundRect(ctx, bx, by, bw, 104, 52);
+    ctx.fill();
+    ctx.restore();
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = "#f5c542";
+    roundRect(ctx, bx, by, bw, 104, 52);
+    ctx.stroke();
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(o.badge, CARD_W / 2, by + 56, bw - 60);
+  }
 }

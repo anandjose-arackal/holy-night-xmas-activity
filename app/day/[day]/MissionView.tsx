@@ -18,6 +18,7 @@ import { completeMission, completePrayer, completeStep, type FullProgress, loadP
 import { isOpen } from "@/lib/game/unlock";
 import { MASS_HOME, XP, type Step } from "@/lib/game/xp";
 import { prayXp } from "@/lib/voice/accumulator";
+import { parseRef } from "@/lib/bible";
 import { useT } from "@/lib/i18n";
 import { asset } from "@/lib/asset";
 import { parch, pill, redBtn, tag } from "@/lib/ui";
@@ -167,6 +168,7 @@ export function MissionView({ mission }: { mission: Mission }) {
   const dayXp =
     (done("read") ? XP.read : 0) + (done("mass") ? massXp : 0) + XP.task + (done("story") ? XP.story : 0) + (prog.prayXp[day] ?? 0);
   const prayers = VOICE ? DAY_PRAYERS[day] : undefined;
+  const bibleAt = parseRef(mission.en.ref); // the day's passage, opened in the Bible reader
   const prayedVoice = prog.prayVoiceDays.includes(day);
   async function savePrayer(secs: number | null) {
     const before = prog!.prayXp[day];
@@ -213,7 +215,16 @@ export function MissionView({ mission }: { mission: Mission }) {
             <Part key="read" icon={<BookIcon width={22} height={22} />} title={`1. ${t.stepRead}`} done={done("read")}>
                     <ClampText lines={5}><blockquote className="font-display text-lg leading-relaxed italic">“{m.verse}”</blockquote></ClampText>
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-semibold text-ink-soft">— {m.ref}</p>
+                      {bibleAt ? (
+                        <Link
+                          href={`/bible/read?b=${bibleAt.b}&c=${bibleAt.c}&v=${mission.en.ref.split(":")[1].replace(/\s/g, "")}`}
+                          className="flex min-h-11 items-center gap-1 text-sm font-semibold text-crimson-dark underline decoration-rim decoration-2 underline-offset-4"
+                        >
+                          <BookIcon width={18} height={18} /> {m.ref}
+                        </Link>
+                      ) : (
+                        <p className="text-sm font-semibold text-ink-soft">— {m.ref}</p>
+                      )}
                       <button type="button" aria-label={t.shareVerse} onClick={() => setSheet("share")} className="flex size-11 shrink-0 items-center justify-center rounded-full border-[3px] border-[#f5c542] bg-[#fffaf0] text-crimson-dark shadow">
                         <ShareIcon width={22} height={22} strokeWidth={2.2} />
                       </button>

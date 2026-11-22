@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BackIcon, BookIcon, Chevron, ShareIcon, roundBtn } from "@/components/day";
 import { VerseShare } from "@/components/VerseShare";
-import { type Book, type Verse, listBooks, readChapter, saveLastRead, step } from "@/lib/bible";
+import { type Book, type Verse, listBooks, parseVerses, readChapter, saveLastRead, step } from "@/lib/bible";
 import { useT } from "@/lib/i18n";
 import { parch, pill, redBtn } from "@/lib/ui";
 
@@ -21,6 +21,8 @@ export function Reader() {
   const sp = useSearchParams();
   const b = Number(sp.get("b")) || 47;
   const c = Number(sp.get("c") ?? 1);
+  const vq = sp.get("v"); // the day's verses, from the mission's reference
+  const [marked] = useState(() => new Set(parseVerses(vq)));
   const [books, setBooks] = useState<Book[] | null>(null);
   const [verses, setVerses] = useState<Verse[] | null>(null);
   const [error, setError] = useState(false);
@@ -48,13 +50,16 @@ export function Reader() {
         setVerses(v);
         saveLastRead(b, c);
         window.scrollTo({ top: 0 });
+        // Opened from a day's reference: bring its first verse into view once it has rendered.
+        const first = Math.min(...marked);
+        if (Number.isFinite(first)) requestAnimationFrame(() => document.getElementById(`v${first}`)?.scrollIntoView({ block: "center" }));
       },
       () => live && setError(true),
     );
     return () => {
       live = false;
     };
-  }, [b, c]);
+  }, [b, c, marked]);
 
   const book = books?.find((x) => x.id === b);
   const prev = books && step(books, b, c, -1);
@@ -68,7 +73,7 @@ export function Reader() {
     } catch {}
   };
   // Share the tapped verse, else the chapter's first one.
-  const share = verses?.find((v) => v.verse === picked) ?? verses?.find((v) => v.verse > 0) ?? verses?.[0];
+  const share = verses?.find((v) => v.verse === picked) ?? verses?.find((v) => marked.has(v.verse)) ?? verses?.find((v) => v.verse > 0) ?? verses?.[0];
   const shareRef = book && share ? `${book.name} ${c}${share.verse > 0 ? `:${share.verse}` : ""}` : "";
 
   return (
@@ -99,12 +104,12 @@ export function Reader() {
           {error && <p role="alert" className="text-center font-semibold text-crimson-dark">{t.bibleError}</p>}
           {!verses && !error && <div className="h-96 motion-safe:animate-pulse" aria-busy="true" />}
           {verses?.map((v) => (
-            <p key={v.verse} className="m-0">
+            <p key={v.verse} id={`v${v.verse}`} className="m-0">
               <button
                 type="button"
                 aria-pressed={picked === v.verse}
                 onClick={() => setPicked(picked === v.verse ? null : v.verse)}
-                className={`flex w-full gap-3 rounded-xl px-2 py-1.5 text-left leading-[1.8] transition ${picked === v.verse ? "bg-[#f8dc8a]/70 ring-2 ring-[#e0a92a]" : ""}`}
+                className={`flex w-full gap-3 rounded-xl px-2 py-1.5 text-left leading-[1.8] transition ${picked === v.verse ? "bg-[#f8dc8a]/70 ring-2 ring-[#e0a92a]" : marked.has(v.verse) ? "bg-[#fbe9b7]/70" : ""}`}
               >
                 {v.verse > 0 && (
                   <span className="mt-1.5 flex h-7 min-w-7 shrink-0 items-center justify-center rounded-lg border border-[#e0b85a] bg-gradient-to-b from-[#fff3c4] to-[#f3d48a] px-1 font-display text-sm font-bold text-crimson-dark shadow-sm">

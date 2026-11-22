@@ -19,3 +19,19 @@ test("plain ignores zero-width non-joiners and case", () => {
   assert.equal(plain("യോഹന്നാ\u200cന്‍"), plain("യോഹന്നാന്‍"));
   assert.equal(plain("John"), "john");
 });
+
+test("parseRef reads the mission refs, ranges and lists", async () => {
+  const { parseRef, parseVerses } = await import("./bibleStep.ts");
+  assert.deepEqual(parseRef("Luke 2:7"), { b: 49, c: 2, verses: [7] });
+  assert.deepEqual(parseRef("Mark 13:33-35"), { b: 48, c: 13, verses: [33, 34, 35] });
+  assert.deepEqual(parseRef("John 1:6-7, 19-20"), { b: 50, c: 1, verses: [6, 7, 19, 20] });
+  assert.equal(parseRef("Hebrews 1:1"), null); // not mapped
+  assert.deepEqual(parseVerses("3-5"), [3, 4, 5]);
+  assert.deepEqual(parseVerses(null), []);
+});
+
+test("every mission ref opens in the reader", async () => {
+  const { parseRef } = await import("./bibleStep.ts");
+  const { missions } = await import("../content/missions.ts");
+  for (const m of missions) assert.ok(parseRef(m.en.ref), m.en.ref);
+});

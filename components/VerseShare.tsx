@@ -3,7 +3,12 @@
 // Share the day's verse as a 1080×1920 picture: one preview, four styles, Share and Download. Nothing else.
 import { useEffect, useRef, useState } from "react";
 import { BackIcon, DownloadIcon, ShareIcon, roundBtn } from "@/components/day";
+import { useXpPop } from "@/components/XpPop";
 import { asset } from "@/lib/asset";
+import { getCampaign, recordShare } from "@/lib/data";
+import { daysToChristmas } from "@/lib/game/unlock";
+import { SHARE_XP } from "@/lib/game/xp";
+import { useChild } from "@/lib/useChild";
 import type { useT } from "@/lib/i18n";
 import { pill, redBtn } from "@/lib/ui";
 import { CARD_H, CARD_THEMES, CARD_W, type CardTheme, drawVerseCard } from "@/lib/verseCard";
@@ -18,20 +23,45 @@ const THUMB: Record<CardTheme, string> = {
 };
 const BG: Partial<Record<CardTheme, string>> = { golden: "/bg/village-tall.webp", moonlit: "/bg/village-tall-night.webp" };
 
+/** Drop a font at public/fonts/share-verse.woff2 to use it for the verse on the picture; else Anek Malayalam. */
+let customFont: Promise<boolean> | null = null;
+const loadCustomFont = () =>
+  (customFont ??= new FontFace("ShareVerse", `url(${asset("/fonts/share-verse.woff2")})`)
+    .load()
+    .then((f) => (document.fonts.add(f), true))
+    .catch(() => false));
+
 export function VerseShare({ verse, verseRef, fileName, t, onClose }: { verse: string; verseRef: string; fileName: string; t: T; onClose: () => void }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [theme, setTheme] = useState<CardTheme>("golden");
   const [busy, setBusy] = useState(false);
+  const [badge, setBadge] = useState<string | undefined>();
+  const ctx = useChild();
+  const xpPop = useXpPop();
+
+  // Countdown ribbon on the picture: "N days to Christmas", then tomorrow / Happy Christmas, nothing after.
+  useEffect(() => {
+    getCampaign()
+      .catch(() => undefined)
+      .then((c) => {
+        const n = daysToChristmas(c);
+        setBadge(n > 1 ? t.daysToXmas.replace("{n}", String(n)) : n === 1 ? t.xmasTomorrow : n === 0 ? t.happyXmas : undefined);
+      });
+  }, [t]);
 
   useEffect(() => {
     let live = true;
     const c = canvas.current!;
     // next/font gives the fonts hashed family names: read them from the page so the canvas uses the same faces.
     const css = getComputedStyle(document.documentElement);
-    const font = [css.getPropertyValue("--font-ml"), css.getPropertyValue("--font-latin"), "sans-serif"].filter(Boolean).join(", ");
-    const draw = (bg: HTMLImageElement | null) => live && drawVerseCard(c.getContext("2d")!, { verse, ref: verseRef, theme, font, bg });
+    const stack = [css.getPropertyValue("--font-ml-tight"), css.getPropertyValue("--font-ml"), css.getPropertyValue("--font-latin"), "sans-serif"];
+    let font = stack.filter(Boolean).join(", ");
+    const draw = (bg: HTMLImageElement | null) => live && drawVerseCard(c.getContext("2d")!, { verse, ref: verseRef, theme, font, bg, badge });
     // Without waiting, Malayalam would draw in a fallback font (or as boxes) the first time.
-    document.fonts.load(`700 60px ${font}`, verse).finally(() => {
+    loadCustomFont().then((has) => {
+      if (has) font = `ShareVerse, ${font}`;
+      return document.fonts.load(`700 60px ${font}`, verse);
+    }).finally(() => {
       draw(null);
       const src = BG[theme];
       if (!src) return;
@@ -43,7 +73,7 @@ export function VerseShare({ verse, verseRef, fileName, t, onClose }: { verse: s
     return () => {
       live = false;
     };
-  }, [theme, verse, verseRef]);
+  }, [theme, verse, verseRef, badge]);
 
   const blob = () => new Promise<Blob>((ok, no) => canvas.current!.toBlob((b) => (b ? ok(b) : no(new Error("no image"))), "image/png"));
   const name = `${fileName}.png`;
@@ -61,6 +91,8 @@ export function VerseShare({ verse, verseRef, fileName, t, onClose }: { verse: s
       const file = new File([await blob()], name, { type: "image/png" });
       if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], title: verseRef });
       else await download(); // desktop browsers without file sharing
+      const xp = ctx ? await recordShare(ctx.child.id).catch(() => 0) : 0; // 20 XP, first 3 shares of the day
+      if (xp) xpPop.pop(`+${xp} XP`);
     } catch (e) {
       if ((e as Error).name !== "AbortError") console.error(e); // AbortError: the child closed the share sheet
     }
@@ -115,6 +147,7 @@ export function VerseShare({ verse, verseRef, fileName, t, onClose }: { verse: s
           </div>
         </div>
 
+        <p className="-mb-2 text-center text-sm font-bold text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]">{t.shareXp.replace("{n}", String(SHARE_XP))}</p>
         <div className="grid grid-cols-2 gap-3">
           <button type="button" className={`${redBtn} px-3! text-lg!`} disabled={busy} onClick={share}>
             <ShareIcon width={24} height={24} strokeWidth={2.2} /> {t.shareImage}
@@ -124,6 +157,7 @@ export function VerseShare({ verse, verseRef, fileName, t, onClose }: { verse: s
           </button>
         </div>
       </div>
+      {xpPop.node}
     </section>
   );
 }

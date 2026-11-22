@@ -40,4 +40,7 @@ export const isChristmasEve = (c: Campaign = DEFAULT_CAMPAIGN, d: Date = now()) 
 /** The Holy Family is complete on Christmas for everyone, whatever they completed. */
 export const isChristmas = (c: Campaign = DEFAULT_CAMPAIGN, d: Date = now()) => elapsed(c, d, c.christmas) >= 0;
 
+/** Whole days left until Christmas in the campaign's time zone: 0 on Christmas Day, negative after. */
+export const daysToChristmas = (c: Campaign = DEFAULT_CAMPAIGN, d: Date = now()) => 0 - elapsed(c, d, c.christmas); // 0 -, not unary -, so Christmas Day is 0, not -0
+
 export const hearts = (completedDays: number[]) => completedDays.length * 10;

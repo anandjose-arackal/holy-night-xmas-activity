@@ -3,7 +3,7 @@
 import { supabase } from "@/lib/data";
 
 export type { Book } from "@/lib/bibleStep";
-export { plain, step } from "@/lib/bibleStep";
+export { parseRef, parseVerses, plain, step } from "@/lib/bibleStep";
 import type { Book } from "@/lib/bibleStep";
 export type Verse = { verse: number; text: string };
 

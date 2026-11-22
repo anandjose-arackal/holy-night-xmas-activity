@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Lang } from "@/content/missions";
-import { type Campaign, DEFAULT_CAMPAIGN, isOpen, localDate, now, openDate } from "@/lib/game/unlock";
-import { MASS_HOME, XP, canBuy, earned, type Progress, type Step } from "@/lib/game/xp";
+import { type Campaign, DEFAULT_CAMPAIGN, isOpen, localDate, now, openDate, todayDay } from "@/lib/game/unlock";
+import { MASS_HOME, SHARES_A_DAY, SHARE_XP, XP, canBuy, earned, type Progress, type Step } from "@/lib/game/xp";
 import type { PrayerSet } from "@/content/prayers";
 import { hasBig, prayXp, repsOf } from "@/lib/voice/accumulator";
 import type { TreeState } from "@/lib/tree";
@@ -165,6 +165,8 @@ type LocalProgress = {
   massXp: Record<number, number>;
   prayXp: Record<number, number>;
   prayVoice: number[];
+  /** Shares that paid, per campaign day. */
+  shares: Record<number, number>;
   bonus: BonusKey[];
   layout: unknown;
 };
@@ -178,6 +180,7 @@ const readProgress = (id: string): LocalProgress => ({
   massXp: {},
   prayXp: {},
   prayVoice: [],
+  shares: {},
   bonus: [],
   layout: null,
   ...JSON.parse(localStorage.getItem(progressKey(id)) ?? "{}"),
@@ -203,6 +206,7 @@ export async function loadProgress(child: Child): Promise<FullProgress> {
       massXp: p.massXp,
       prayXp: p.prayXp,
       prayVoiceDays: p.prayVoice,
+      shareXp: Object.values(p.shares).reduce((n, x) => n + x, 0) * SHARE_XP,
       bonus: p.bonus,
       layout: p.layout,
     };
@@ -214,11 +218,11 @@ export async function loadProgress(child: Child): Promise<FullProgress> {
     });
   const [tasks, steps, bonus, layout] = await Promise.all([
     by<{ day: number; completed_at: string }>(supabase.from("completions").select("day, completed_at").eq("child_id", child.id).eq("campaign_id", c.id!)),
-    by<{ day: number; step: Step | "pray"; done_at: string; xp: number | null; speech_seconds: number | null }>(supabase.from("day_steps").select("day, step, done_at, xp, speech_seconds").eq("child_id", child.id).eq("campaign_id", c.id!)),
+    by<{ day: number; step: string; done_at: string; xp: number | null; speech_seconds: number | null }>(supabase.from("day_steps").select("day, step, done_at, xp, speech_seconds").eq("child_id", child.id).eq("campaign_id", c.id!)),
     by<{ item: BonusKey }>(supabase.from("bonus_unlocks").select("item").eq("child_id", child.id).eq("campaign_id", c.id!)),
     by<{ data: unknown }>(supabase.from("village_layout").select("data").eq("child_id", child.id).eq("campaign_id", c.id!)),
   ]);
-  const of = (s: Step) => steps.filter((x) => x.step === s).map((x) => x.day);
+  const of = (s: string) => steps.filter((x) => x.step === s).map((x) => x.day);
   const xpOf = (s: Step | "pray") => Object.fromEntries(steps.filter((x) => x.step === s && x.xp != null).map((x) => [x.day, x.xp!]));
   return {
     taskDays: tasks.map((t) => t.day),
@@ -230,6 +234,7 @@ export async function loadProgress(child: Child): Promise<FullProgress> {
     massXp: xpOf("mass"),
     prayXp: xpOf("pray"),
     prayVoiceDays: steps.filter((x) => x.step === "pray" && x.speech_seconds != null).map((x) => x.day),
+    shareXp: steps.filter((x) => x.step.startsWith("share")).reduce((n, x) => n + (x.xp ?? 0), 0),
     bonus: bonus.map((b) => b.item),
     layout: layout[0]?.data ?? null,
   };
@@ -268,6 +273,20 @@ export async function completePrayer(id: string, day: number, set: PrayerSet, sp
   });
   if (error) throw error;
   return xp;
+}
+
+/** A verse picture was shared: 20 XP for the first 3 shares of today's campaign day. Returns the XP earned (0 or 20). */
+export async function recordShare(id: string): Promise<number> {
+  if (!supabase) {
+    const day = todayDay(DEFAULT_CAMPAIGN);
+    const p = readProgress(id);
+    if (day < 1 || (p.shares[day] ?? 0) >= SHARES_A_DAY) return 0;
+    writeProgress(id, { ...p, shares: { ...p.shares, [day]: (p.shares[day] ?? 0) + 1 } });
+    return SHARE_XP;
+  }
+  const { data, error } = await supabase.rpc("record_share", { p_child: id });
+  if (error) throw error;
+  return data as number;
 }
 
 /** The database re-counts the child's XP before it allows a purchase. */
