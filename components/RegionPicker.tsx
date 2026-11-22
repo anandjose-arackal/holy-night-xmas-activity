@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { addRegion, getParish, listParishes, listRegions, type Region, type RegionLevel, type Regions } from "@/lib/data";
 import { useT } from "@/lib/i18n";
+import { site } from "@/lib/site";
 
 const select = "min-h-11 w-full rounded-xl border-2 border-rim bg-white/80 px-2 disabled:opacity-50";
 const NEW = "__new";
@@ -11,6 +12,7 @@ const NEW = "__new";
  * Diocese -> meghala -> parish, each list narrowed by the one above, and "+ Add new…" at the end of each
  * for a place that is missing (it is added for everyone). Only the parish is saved; the diocese and
  * meghala start from the saved parish. Parishes load per meghala (there are more than one query returns).
+ * On a diocese's own site (lib/site.ts) the diocese is fixed: the picker starts at that diocese's meghalas.
  */
 export function RegionPicker({ parishId, onChange }: { parishId: string | null; onChange: (parishId: string | null) => void }) {
   const { t } = useT();
@@ -22,6 +24,7 @@ export function RegionPicker({ parishId, onChange }: { parishId: string | null; 
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
+  const [fixed, setFixed] = useState<string | null>(null); // the site's diocese id, when it is found
 
   const reloadRegions = () => listRegions().then((r) => setRegions({ dioceses: [...r.dioceses], meghalas: [...r.meghalas] }));
   const openMeghala = (id: string) => {
@@ -35,6 +38,12 @@ export function RegionPicker({ parishId, onChange }: { parishId: string | null; 
     Promise.all([listRegions(), getParish(parishId)]).then(
       ([r, p]) => {
         setRegions({ dioceses: [...r.dioceses], meghalas: [...r.meghalas] });
+        const own = site().diocese?.toLowerCase();
+        const mine = own ? r.dioceses.find((d) => d.name.trim().toLowerCase() === own) : undefined;
+        if (mine) {
+          setFixed(mine.id);
+          setDiocese(mine.id);
+        }
         if (!p?.parent) return;
         setDiocese(r.meghalas.find((m) => m.id === p.parent)?.parent ?? "");
         setMeghala(p.parent);
@@ -83,8 +92,8 @@ export function RegionPicker({ parishId, onChange }: { parishId: string | null; 
 
   return (
     <div className="flex w-full flex-col gap-2">
-      <div className="grid w-full gap-2 sm:grid-cols-3">
-        <label className="flex flex-col gap-0.5 text-xs font-semibold">
+      <div className={`grid w-full gap-2 ${fixed ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}>
+        <label className={`flex flex-col gap-0.5 text-xs font-semibold ${fixed ? "hidden" : ""}`}>
           {t.diocese}
           <select
             className={select}

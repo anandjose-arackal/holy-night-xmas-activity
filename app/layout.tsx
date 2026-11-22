@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Anek_Malayalam, Merriweather, Noto_Sans, Noto_Sans_Malayalam } from "next/font/google";
+import { Splash } from "@/components/Splash";
 import "./globals.css";
 
 const latin = Noto_Sans({ variable: "--font-latin", subsets: ["latin"] });
@@ -19,7 +20,10 @@ export const viewport: Viewport = { themeColor: "#24151a", viewportFit: "cover" 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${latin.variable} ${malayalam.variable} ${malayalamTight.variable} ${serif.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col font-sans">{children}</body>
+      <body className="flex min-h-full flex-col font-sans">
+        {children}
+        <Splash />
+      </body>
     </html>
   );
 }

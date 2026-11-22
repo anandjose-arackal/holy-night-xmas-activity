@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test lib/game/unlock.test.ts lib/game/xp.test.ts lib/tree.test.ts lib/village/layout.test.ts lib/quiz.test.ts lib/loginId.test.ts lib/voice/accumulator.test.ts lib/verseCard.test.ts lib/bible.test.ts",
+    "test": "node --test lib/game/unlock.test.ts lib/game/xp.test.ts lib/tree.test.ts lib/village/layout.test.ts lib/quiz.test.ts lib/loginId.test.ts lib/voice/accumulator.test.ts lib/verseCard.test.ts lib/bible.test.ts lib/site.test.ts",
     "postinstall": "node scripts/copy-vad-assets.mjs",
     "prebuild": "node scripts/copy-vad-assets.mjs"
   },
