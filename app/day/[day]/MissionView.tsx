@@ -25,7 +25,7 @@ import { useChild } from "@/lib/useChild";
 import { PIECES, TREE_NAMES, rewardForDay } from "@/lib/village/layout";
 
 const STEP_ORDER: Step[] = ["read", "mass", "task"];
-const VOICE = process.env.NEXT_PUBLIC_VOICE === "1"; // Pray now, until the field test is done
+const VOICE = process.env.NEXT_PUBLIC_VOICE !== "0"; // Pray now; set NEXT_PUBLIC_VOICE=0 to hide it
 
 const shell =
   "day-bg flex min-h-dvh flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] text-ink landscape:bg-fixed";

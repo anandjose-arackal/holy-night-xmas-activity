@@ -1,5 +1,6 @@
 // DRAFT — every Malayalam prayer text needs review by a parish catechist against the approved version before launch.
-// `seconds` is the speech one repetition needs before its bead fills (tune in the field test).
+// `seconds` is the speech one repetition needs before its bead fills: set after the first home test
+// (a child need not say every word for the bead to fill).
 import type { Lang } from "./missions.ts";
 
 export type PrayerKey =
@@ -17,10 +18,10 @@ export type Prayer = {
 };
 
 export const PRAYERS: Record<PrayerKey, Prayer> = {
-  amme_ashraya: { seconds: 2, text: { ml: ["എന്റെ അമ്മേ, എന്റെ ആശ്രയമേ."], en: ["My Mother, my refuge."] } },
-  daiva_sneham: { seconds: 3, text: { ml: ["ദൈവ സ്നേഹത്താല്‍ ഞങ്ങളെ നിറക്കേണമേ."], en: ["Fill us with divine love."] } },
+  amme_ashraya: { seconds: 1.6, text: { ml: ["എന്റെ അമ്മേ, എന്റെ ആശ്രയമേ."], en: ["My Mother, my refuge."] } },
+  daiva_sneham: { seconds: 2.4, text: { ml: ["ദൈവ സ്നേഹത്താല്‍ ഞങ്ങളെ നിറക്കേണമേ."], en: ["Fill us with divine love."] } },
   eesho_love: {
-    seconds: 3,
+    seconds: 2.4,
     text: {
       ml: [
         "എന്റെ ഈശോയെ, അങ്ങയെ ഞാന്‍ സ്നേഹിക്കുന്നു.",
@@ -31,14 +32,14 @@ export const PRAYERS: Record<PrayerKey, Prayer> = {
       en: ["My Jesus, I love you.", "My Jesus, I trust in you.", "My Jesus, I praise you.", "My Jesus, I rejoice in you."],
     },
   },
-  daivame_karuna: { seconds: 2, text: { ml: ["ദൈവമേ, കരുണയായിരിക്കേണമേ."], en: ["God, have mercy."] } },
-  athmave_nirayane: { seconds: 2, text: { ml: ["പരിശുദ്ധാത്മാവേ എന്നിൽ നിറയേണമേ."], en: ["Holy Spirit, fill me."] } },
-  unni_eesho: { seconds: 3, text: { ml: ["ഉണ്ണീശോയേ, എന്റെ ഹൃദയത്തിൽ വരേണമേ."], en: ["Child Jesus, come into my heart."] } },
-  jmj: { seconds: 3, text: { ml: ["ഈശോ മറിയം യൗസേപ്പേ, ഞങ്ങളുടെ ആത്മാക്കളെ രക്ഷിക്കേണമേ."], en: ["Jesus, Mary and Joseph, save our souls."] } },
-  thiruhrudayam: { seconds: 3, text: { ml: ["ഈശോയുടെ തിരുഹൃദയമേ, ഞങ്ങളുടെമേൽ കരുണയായിരിക്കേണമേ."], en: ["Sacred Heart of Jesus, have mercy on us."] } },
-  yauseppe: { seconds: 3, text: { ml: ["വിശുദ്ധ യൗസേപ്പേ, ഞങ്ങൾക്കുവേണ്ടി പ്രാർത്ഥിക്കേണമേ."], en: ["Saint Joseph, pray for us."] } },
+  daivame_karuna: { seconds: 1.6, text: { ml: ["ദൈവമേ, കരുണയായിരിക്കേണമേ."], en: ["God, have mercy."] } },
+  athmave_nirayane: { seconds: 1.6, text: { ml: ["പരിശുദ്ധാത്മാവേ എന്നിൽ നിറയേണമേ."], en: ["Holy Spirit, fill me."] } },
+  unni_eesho: { seconds: 2.4, text: { ml: ["ഉണ്ണീശോയേ, എന്റെ ഹൃദയത്തിൽ വരേണമേ."], en: ["Child Jesus, come into my heart."] } },
+  jmj: { seconds: 2.4, text: { ml: ["ഈശോ മറിയം യൗസേപ്പേ, ഞങ്ങളുടെ ആത്മാക്കളെ രക്ഷിക്കേണമേ."], en: ["Jesus, Mary and Joseph, save our souls."] } },
+  thiruhrudayam: { seconds: 2.4, text: { ml: ["ഈശോയുടെ തിരുഹൃദയമേ, ഞങ്ങളുടെമേൽ കരുണയായിരിക്കേണമേ."], en: ["Sacred Heart of Jesus, have mercy on us."] } },
+  yauseppe: { seconds: 2.4, text: { ml: ["വിശുദ്ധ യൗസേപ്പേ, ഞങ്ങൾക്കുവേണ്ടി പ്രാർത്ഥിക്കേണമേ."], en: ["Saint Joseph, pray for us."] } },
   our_father: {
-    seconds: 15,
+    seconds: 12,
     text: {
       ml: ["സ്വര്‍ഗ്ഗസ്ഥനായ ഞങ്ങളുടെ പിതാവേ, അങ്ങയുടെ നാമം പൂജിതമാകണമേ. അങ്ങയുടെ രാജ്യം വരണമേ. അങ്ങയുടെ തിരുമനസ്സ് സ്വര്‍ഗ്ഗത്തിലെപ്പോലെ ഭൂമിയിലും ആകണമേ. അന്നന്നു വേണ്ട ആഹാരം ഇന്നു ഞങ്ങള്‍ക്കു തരണമേ. ഞങ്ങളോടു തെറ്റു ചെയ്യുന്നവരോടു ഞങ്ങള്‍ ക്ഷമിക്കുന്നതുപോലെ ഞങ്ങളുടെ തെറ്റുകള്‍ ഞങ്ങളോടും ക്ഷമിക്കണമേ. ഞങ്ങളെ പ്രലോഭനത്തില്‍ ഉള്‍പ്പെടുത്തരുതേ. തിന്മയില്‍ നിന്നു ഞങ്ങളെ രക്ഷിക്കണമേ. ആമേന്‍."],
       en: ["Our Father, who art in heaven, hallowed be thy name; thy kingdom come, thy will be done on earth as it is in heaven. Give us this day our daily bread, and forgive us our trespasses, as we forgive those who trespass against us; and lead us not into temptation, but deliver us from evil. Amen."],
@@ -52,14 +53,14 @@ export const PRAYERS: Record<PrayerKey, Prayer> = {
     },
   },
   glory_be: {
-    seconds: 6,
+    seconds: 4.8,
     text: {
       ml: ["പിതാവിനും പുത്രനും പരിശുദ്ധാത്മാവിനും സ്തുതി. ആദിയിലെപ്പോലെ ഇപ്പോഴും എപ്പോഴും എന്നേക്കും. ആമേന്‍."],
       en: ["Glory be to the Father, and to the Son, and to the Holy Spirit, as it was in the beginning, is now, and ever shall be, world without end. Amen."],
     },
   },
   salve_regina: {
-    seconds: 35,
+    seconds: 22,
     big: true,
     text: {
       ml: ["പരിശുദ്ധ രാജ്ഞീ, കരുണയുടെ മാതാവേ, സ്വസ്തി! ഞങ്ങളുടെ ജീവനും മാധുര്യവും ശരണവുമേ, സ്വസ്തി! ഹവ്വായുടെ പുറംതള്ളപ്പെട്ട മക്കളായ ഞങ്ങള്‍ അങ്ങേ പക്കല്‍ നിലവിളിക്കുന്നു. കണ്ണുനീരിന്റെ ഈ താഴ്വരയില്‍ നിന്ന് വിങ്ങിക്കരഞ്ഞ് അങ്ങേ പക്കല്‍ ഞങ്ങള്‍ നെടുവീര്‍പ്പിടുന്നു. ആകയാല്‍ ഞങ്ങളുടെ മദ്ധ്യസ്ഥേ, അങ്ങയുടെ കരുണയുള്ള കണ്ണുകള്‍ ഞങ്ങളുടെ നേരെ തിരിക്കണമേ. ഈ പ്രവാസത്തിനുശേഷം അങ്ങയുടെ ഉദരത്തിന്റെ അനുഗ്രഹീത ഫലമായ ഈശോയെ ഞങ്ങള്‍ക്കു കാണിച്ചു തരണമേ. കരുണയും വാത്സല്യവും മാധുര്യവുമുള്ള കന്യകാമറിയമേ, ആമേന്‍."],
@@ -67,7 +68,7 @@ export const PRAYERS: Record<PrayerKey, Prayer> = {
     },
   },
   st_michael: {
-    seconds: 25,
+    seconds: 22,
     big: true,
     text: {
       ml: ["മുഖ്യദൂതനായ വിശുദ്ധ മിഖായേലേ, യുദ്ധത്തില്‍ ഞങ്ങളെ കാത്തുകൊള്ളണമേ. പിശാചിന്റെ ദുഷ്ടതയിലും കെണികളിലും നിന്ന് ഞങ്ങളെ സംരക്ഷിക്കണമേ. ദൈവം അവനെ ശാസിക്കട്ടെ എന്ന് ഞങ്ങള്‍ താഴ്മയോടെ പ്രാര്‍ത്ഥിക്കുന്നു. സ്വര്‍ഗ്ഗീയ സൈന്യങ്ങളുടെ പ്രഭുവേ, ആത്മാക്കളെ നശിപ്പിക്കാന്‍ ലോകത്തില്‍ ചുറ്റിനടക്കുന്ന സാത്താനെയും മറ്റു ദുഷ്ടാരൂപികളെയും ദൈവശക്തിയാല്‍ നരകത്തിലേക്കു തള്ളിക്കളയണമേ. ആമേന്‍."],
@@ -75,7 +76,7 @@ export const PRAYERS: Record<PrayerKey, Prayer> = {
     },
   },
   peace_francis: {
-    seconds: 45,
+    seconds: 25,
     big: true,
     text: {
       ml: ["കര്‍ത്താവേ, എന്നെ അങ്ങയുടെ സമാധാനത്തിന്റെ ഉപകരണമാക്കണമേ. വിദ്വേഷമുള്ളിടത്ത് സ്നേഹവും, ദ്രോഹമുള്ളിടത്ത് ക്ഷമയും, സംശയമുള്ളിടത്ത് വിശ്വാസവും, നിരാശയുള്ളിടത്ത് പ്രത്യാശയും, അന്ധകാരമുള്ളിടത്ത് പ്രകാശവും, ദുഃഖമുള്ളിടത്ത് സന്തോഷവും ഞാന്‍ വിതയ്ക്കട്ടെ. ഓ ദിവ്യനാഥാ, ആശ്വസിപ്പിക്കപ്പെടുന്നതിനേക്കാള്‍ ആശ്വസിപ്പിക്കുവാനും, മനസ്സിലാക്കപ്പെടുന്നതിനേക്കാള്‍ മനസ്സിലാക്കുവാനും, സ്നേഹിക്കപ്പെടുന്നതിനേക്കാള്‍ സ്നേഹിക്കുവാനും എനിക്കു കൃപ തരണമേ. കാരണം, കൊടുക്കുമ്പോഴാണ് ഞങ്ങള്‍ സ്വീകരിക്കുന്നത്; ക്ഷമിക്കുമ്പോഴാണ് ഞങ്ങള്‍ ക്ഷമിക്കപ്പെടുന്നത്; മരിക്കുമ്പോഴാണ് ഞങ്ങള്‍ നിത്യജീവനിലേക്കു ജനിക്കുന്നത്. ആമേന്‍."],
@@ -83,7 +84,7 @@ export const PRAYERS: Record<PrayerKey, Prayer> = {
     },
   },
   creed: {
-    seconds: 40,
+    seconds: 30,
     big: true,
     text: {
       ml: ["സര്‍വ്വശക്തനും പിതാവും ആകാശത്തിന്റെയും ഭൂമിയുടെയും സ്രഷ്ടാവുമായ ദൈവത്തില്‍ ഞാന്‍ വിശ്വസിക്കുന്നു. അവിടുത്തെ ഏകപുത്രനും ഞങ്ങളുടെ കര്‍ത്താവുമായ ഈശോമിശിഹായിലും ഞാന്‍ വിശ്വസിക്കുന്നു. ഈ പുത്രന്‍ പരിശുദ്ധാത്മാവാല്‍ ഗര്‍ഭസ്ഥനായി കന്യകാമറിയത്തില്‍ നിന്നു പിറന്നു. പന്തിയോസ് പീലാത്തോസിന്റെ കാലത്ത് പീഡകള്‍ സഹിച്ച്, കുരിശില്‍ തറയ്ക്കപ്പെട്ട്, മരിച്ച് അടക്കപ്പെട്ടു. പാതാളത്തില്‍ ഇറങ്ങി മരിച്ചവരുടെ ഇടയില്‍ നിന്നു മൂന്നാം നാള്‍ ഉയിര്‍ത്തു. സ്വര്‍ഗ്ഗത്തിലേക്ക് എഴുന്നള്ളി, സര്‍വ്വശക്തനായ പിതാവിന്റെ വലതുഭാഗത്ത് ഇരിക്കുന്നു. അവിടെ നിന്ന് ജീവിക്കുന്നവരെയും മരിച്ചവരെയും വിധിക്കുവാന്‍ വരുമെന്നും ഞാന്‍ വിശ്വസിക്കുന്നു. പരിശുദ്ധാത്മാവിലും ഞാന്‍ വിശ്വസിക്കുന്നു. വിശുദ്ധ കത്തോലിക്കാ സഭയിലും പുണ്യവാന്മാരുടെ ഐക്യത്തിലും പാപങ്ങളുടെ മോചനത്തിലും ശരീരത്തിന്റെ ഉയിര്‍പ്പിലും നിത്യമായ ജീവിതത്തിലും ഞാന്‍ വിശ്വസിക്കുന്നു. ആമേന്‍."],

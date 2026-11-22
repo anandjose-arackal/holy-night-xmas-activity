@@ -55,11 +55,11 @@ test("frozen counter ignores late callbacks", () => {
 
 test("beads move through repetitions and on to the big prayer", () => {
   const set = [{ key: "amme_ashraya" as const, count: 20 }, { key: "salve_regina" as const, count: 1 }];
-  assert.equal(requiredMs(set), 20 * 2000 + 35000);
+  assert.equal(requiredMs(set), 20 * 1600 + 22000);
   assert.deepEqual(beadAt(set, 0), { item: 0, rep: 0, fill: 0, done: false });
-  assert.deepEqual(beadAt(set, 5000), { item: 0, rep: 2, fill: 0.5, done: false });
-  assert.equal(beadAt(set, 40000).item, 1);
-  assert.equal(beadAt(set, 75000).done, true);
+  assert.deepEqual(beadAt(set, 4000), { item: 0, rep: 2, fill: 0.5, done: false });
+  assert.equal(beadAt(set, 32000).item, 1);
+  assert.equal(beadAt(set, 54000).done, true);
 });
 
 test("XP: 1 per repetition, +10 big prayer, voice bonus 5 or 10", () => {
