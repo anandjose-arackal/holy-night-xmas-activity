@@ -62,13 +62,13 @@ test("beads move through repetitions and on to the big prayer", () => {
   assert.equal(beadAt(set, 54000).done, true);
 });
 
-test("XP: 1 per repetition, +10 big prayer, voice bonus 5 or 10", () => {
+test("XP: 1 per repetition, +10 big prayer, +20 for voice, capped at 50", () => {
   const short = [{ key: "eesho_love" as const, count: 20 }];
-  const withBig = [{ key: "amme_ashraya" as const, count: 20 }, { key: "salve_regina" as const, count: 1 }];
+  const big = [{ key: "salve_regina" as const, count: 1 }];
   assert.equal(prayXp(short, false), 20);
-  assert.equal(prayXp(short, true), 25);
-  assert.equal(prayXp(withBig, false), 30);
-  assert.equal(prayXp(withBig, true), 40);
+  assert.equal(prayXp(short, true), 40);
+  assert.equal(prayXp(big, false), 10);
+  assert.equal(prayXp(big, true), 30);
   assert.equal(prayXp([{ key: "jmj", count: 30 }, { key: "creed", count: 1 }], true), 50); // the SQL cap
 });
 

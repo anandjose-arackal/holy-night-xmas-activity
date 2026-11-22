@@ -68,8 +68,7 @@ export function beadAt(set: PrayerSet, ms: number) {
 export const repsOf = (set: PrayerSet) => Math.min(30, set.filter((p) => !PRAYERS[p.key].big).reduce((n, p) => n + p.count, 0));
 export const hasBig = (set: PrayerSet) => set.some((p) => PRAYERS[p.key].big);
 
-/** Base XP plus the voice bonus (+5, or +10 with a big prayer) when speech was detected. */
+/** Base XP plus a flat +20 when speech was detected, capped at 50. Mirrored in SQL 015. */
 export function prayXp(set: PrayerSet, verified: boolean) {
-  const big = hasBig(set);
-  return repsOf(set) + (big ? 10 : 0) + (verified ? (big ? 10 : 5) : 0);
+  return Math.min(50, repsOf(set) + (hasBig(set) ? 10 : 0) + (verified ? 20 : 0));
 }
