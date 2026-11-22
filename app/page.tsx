@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { OrgName } from "@/components/Splash";
 import { Brand, Divider, EyeIcon, GoogleIcon, LockIcon, MailIcon } from "@/components/day";
 import { LangToggle } from "@/components/LangToggle";
 import { supabase } from "@/lib/data";
@@ -78,6 +79,9 @@ export default function SignIn() {
 
       <div className="mt-2 sm:mt-6">
         <Brand tag={t.journeyTag} />
+        <div className="mt-3">
+          <OrgName />
+        </div>
       </div>
 
       <section className={`${parch} mt-auto flex w-full max-w-md flex-col gap-4 p-6 animate-[rise_.7s_ease-out] motion-reduce:animate-none`}>

@@ -6,8 +6,10 @@ import { useEffect, useState } from "react";
 import { asset } from "@/lib/asset";
 import { getCampaign, listRegions } from "@/lib/data";
 import { site } from "@/lib/site";
+import { parch } from "@/lib/ui";
 
 const IMAGES = [
+  "/brand/cml-logo.webp",
   "/brand/holy-night.webp",
   "/bg/tall.webp",
   "/bg/wide.webp",
@@ -49,21 +51,33 @@ export function Splash() {
       aria-live="polite"
       aria-busy={!done}
       onTransitionEnd={() => done && setGone(true)}
-      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center gap-6 bg-[radial-gradient(circle_at_50%_30%,#4a2530,#24151a_70%)] p-6 text-center transition-opacity duration-500 ${done ? "pointer-events-none opacity-0" : "opacity-100"}`}
+      className={`fixed inset-0 z-[100] bg-[radial-gradient(circle_at_50%_35%,#fffaf0,#f3e2bd_75%)] flex flex-col items-center justify-center gap-6 p-6 text-center transition-opacity duration-500 ${done ? "pointer-events-none opacity-0" : "opacity-100"}`}
     >
-      {/* Star of Bethlehem */}
-      <span aria-hidden className="relative flex size-28 items-center justify-center">
-        <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(255,232,160,0.85),rgba(255,214,110,0.25)_45%,transparent_70%)] motion-safe:animate-pulse" />
-        <svg viewBox="0 0 24 24" className="relative size-16 text-[#f5c542] drop-shadow-[0_0_12px_rgba(255,214,110,0.9)]" fill="currentColor">
-          <path d="M12 0l1.6 8.4L22 12l-8.4 1.6L12 24l-1.6-10.4L2 12l8.4-3.6z" />
-        </svg>
-      </span>
-      <div className="flex flex-col gap-1">
-        <h1 className="font-display text-3xl leading-tight font-black text-[#f5d27a] [text-shadow:0_2px_6px_rgba(0,0,0,0.6)]">Cherupushpa Mission League</h1>
-        <p className="min-h-7 font-display text-xl font-bold text-cream">{subtitle}</p>
+      {/* Plain cream, no picture: the splash shows at once. */}
+      {/* eslint-disable-next-line @next/next/no-img-element -- local art with alpha */}
+      <img src={asset("/brand/cml-logo.webp")} alt="" width={180} height={180} className="size-44 drop-shadow-[0_8px_16px_rgba(60,20,0,0.45)]" />
+      <div className={`${parch} w-full max-w-xs p-5`}>
+        <p className="font-display text-2xl leading-tight font-black text-crimson-dark">Cherupushpa Mission League</p>
+        <p className="mt-1 min-h-7 font-display text-lg font-bold text-ink-soft">{subtitle}</p>
+        <div className="mt-3 h-4 overflow-hidden rounded-full border-2 border-rim bg-white/70" aria-hidden>
+          <div className="h-full rounded-full bg-crimson transition-[width] duration-300" style={{ width: `${Math.max(8, pct)}%` }} />
+        </div>
       </div>
-      <div className="h-2 w-48 overflow-hidden rounded-full bg-white/15" aria-hidden>
-        <div className="h-full rounded-full bg-[#f5c542] transition-[width] duration-300" style={{ width: `${Math.max(8, pct)}%` }} />
+    </div>
+  );
+}
+
+/** The league's logo, name and the site's diocese or "Kerala State", as on the splash (sign-in page). */
+export function OrgName() {
+  const [subtitle, setSubtitle] = useState("");
+  useEffect(() => setSubtitle(site().subtitle), []); // eslint-disable-line react-hooks/set-state-in-effect -- the hostname is known only in the browser
+  return (
+    <div className={`${parch} mx-auto flex w-fit items-center gap-3 rounded-full! py-1.5 pr-5 pl-1.5`}>
+      {/* eslint-disable-next-line @next/next/no-img-element -- local art with alpha */}
+      <img src={asset("/brand/cml-logo.webp")} alt="" width={56} height={56} className="size-14" />
+      <div className="text-left">
+        <p className="font-display text-base leading-tight font-black text-crimson-dark">Cherupushpa Mission League</p>
+        <p className="min-h-5 font-display text-sm font-bold text-ink-soft">{subtitle}</p>
       </div>
     </div>
   );
