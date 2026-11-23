@@ -124,4 +124,6 @@ export const DAY_PRAYERS: Record<number, PrayerSet> = {
   23: s("peace_francis"),
   24: s("unni_eesho", 30),
   25: s("salve_regina"),
+  26: s("jmj", 20),
+  27: s("unni_eesho", 30),
 };

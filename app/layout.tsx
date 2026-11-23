@@ -11,7 +11,7 @@ const malayalamTight = Anek_Malayalam({ variable: "--font-ml-tight", subsets: ["
 const serif = Merriweather({ variable: "--font-serif", subsets: ["latin"], weight: ["700", "900"], style: ["normal", "italic"] });
 
 export const metadata: Metadata = {
-  title: "Bethlehem — 25 days to Christmas",
+  title: "Bethlehem — 27 days to Christmas",
   description: "A daily Scripture, prayer and kindness journey for children, building a Bethlehem village on the way to Christmas.",
 };
 

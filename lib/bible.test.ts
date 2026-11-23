@@ -35,3 +35,21 @@ test("every mission ref opens in the reader", async () => {
   const { missions } = await import("../content/missions.ts");
   for (const m of missions) assert.ok(parseRef(m.en.ref), m.en.ref);
 });
+
+test("parseRef reads calendar Gospel references: short names, St., cross-chapter", async () => {
+  const { parseRef } = await import("./bibleStep.ts");
+  assert.deepEqual(parseRef("Lk 1:5-7"), { b: 49, c: 1, verses: [5, 6, 7] });
+  assert.deepEqual(parseRef("St. Luke 1:5-6"), { b: 49, c: 1, verses: [5, 6] });
+  assert.deepEqual(parseRef("Mt 1:18-19"), { b: 47, c: 1, verses: [18, 19] });
+  assert.equal(parseRef("Jn 1:1")?.b, 50);
+  const x = parseRef("Luke 1:57-2:12");
+  assert.equal(x?.c, 1);
+  assert.equal(x?.verses[0], 57);
+});
+
+test("every day's Syro-Malabar Gospel opens in the Bible reader", async () => {
+  const { GOSPEL } = await import("../content/readings.ts");
+  const { DAYS } = await import("./game/unlock.ts");
+  const { parseRef } = await import("./bibleStep.ts");
+  for (let d = 1; d <= DAYS; d++) assert.ok(GOSPEL[d] && parseRef(GOSPEL[d]!.ref), `day ${d}`);
+});

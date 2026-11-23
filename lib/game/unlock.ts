@@ -1,4 +1,4 @@
-export const DAYS = 25;
+export const DAYS = 27; // 29 Nov to Christmas Day
 
 /** One Advent season. The database row in advent_campaigns is authoritative; this is the demo-mode copy. */
 export type Campaign = {

@@ -13,7 +13,7 @@ import { parch, redBtn } from "@/lib/ui";
 import { useChild } from "@/lib/useChild";
 import { BONUS_KEYS, MASS_GIFTS, PIECES, REWARDS, isPlaced, sanitizeLayout, visibleWorld, type PieceKey } from "@/lib/village/layout";
 
-/** The child's treasure chest: the 25 day treasures (earned by each day's task) and bonus treasures bought with XP. */
+/** The child's treasure chest: the 27 day treasures (earned by each day's task) and bonus treasures bought with XP. */
 export default function Treasure() {
   const { t, lang } = useT();
   const ctx = useChild();

@@ -488,6 +488,64 @@ export const missions: Mission[] = [
   {
     day: 17,
     en: {
+      title: "Do Not Be Afraid",
+      ref: "Luke 1:13",
+      reflection: "An angel told old Zechariah, 'Do not be afraid. Your prayer has been heard.' God hears every prayer we pray, even when the answer takes a long time.",
+      task: "Write down one thing you have been praying for, and pray for it again today with trust.",
+      prayer: "Lord, when I am afraid, help me remember that you always hear me.",
+      verse: "The angel said to him, 'Do not be afraid, Zechariah. Your prayer has been heard. Your wife Elizabeth will have a son, and you will name him John.'",
+      massPrayer: "Jesus, at this Mass I bring you the prayers of my heart. I trust that you hear them.",
+      story: {
+        title: "A Sheep for the Shepherds' Flock",
+        body: "The fields around Bethlehem have been sheep pastures for thousands of years. King David grew up there as a shepherd boy, looking after his father's sheep before he became king. On the first Christmas night, shepherds were still keeping watch over their flocks in those same fields. Sheep stay close to their shepherd and know his voice. Jesus said, 'I am the good shepherd. I know my own and my own know me.' Today a sheep joins the shepherds' flock in our village, waiting near the road to Bethlehem.",
+      },
+    },
+    ml: {
+      title: "ഭയപ്പെടേണ്ടാ",
+      ref: "ലൂക്കാ 1:13",
+      reflection: "വൃദ്ധനായ സഖറിയായോട് ദൂതൻ പറഞ്ഞു: 'ഭയപ്പെടേണ്ടാ, നിന്റെ പ്രാർത്ഥന കേട്ടിരിക്കുന്നു.' ഉത്തരം വൈകിയാലും, നാം ചൊല്ലുന്ന ഓരോ പ്രാർത്ഥനയും ദൈവം കേൾക്കുന്നു.",
+      task: "നിങ്ങൾ ഏറെ നാളായി പ്രാർത്ഥിക്കുന്ന ഒരു കാര്യം എഴുതിവച്ച്, ഇന്ന് വിശ്വാസത്തോടെ അതിനായി വീണ്ടും പ്രാർത്ഥിക്കുക.",
+      prayer: "കർത്താവേ, ഞാൻ ഭയപ്പെടുമ്പോൾ, അങ്ങ് എപ്പോഴും എന്നെ കേൾക്കുന്നു എന്ന് ഓർക്കാൻ എന്നെ സഹായിക്കണമേ.",
+      verse: "ദൂതന്‍ അവനോടു പറഞ്ഞു: സഖറിയാ ഭയപ്പെടേണ്ടാ. നിന്റെ പ്രാര്‍ഥന കേട്ടിരിക്കുന്നു. നിന്റെ ഭാര്യ എലിസബത്തില്‍ നിനക്ക് ഒരു പുത്രന്‍ ജനിക്കും. നീ അവന് യോഹന്നാന്‍ എന്നു പേരിടണം.",
+      massPrayer: "ഈശോയേ, ഈ കുർബാനയിൽ എന്റെ ഹൃദയത്തിലെ പ്രാർത്ഥനകൾ ഞാൻ അങ്ങേക്കു സമർപ്പിക്കുന്നു. അങ്ങ് അവ കേൾക്കുന്നു എന്ന് ഞാൻ വിശ്വസിക്കുന്നു.",
+      story: {
+        title: "ഇടയന്മാരുടെ ആട്ടിൻകൂട്ടത്തിലേക്ക് ഒരു ആട്",
+        body: "ആയിരക്കണക്കിന് വർഷങ്ങളായി ബേത്‌ലെഹേമിനു ചുറ്റുമുള്ള വയലുകൾ ആടുകളുടെ മേച്ചിൽസ്ഥലങ്ങളാണ്. രാജാവാകുന്നതിനു മുമ്പ് ദാവീദ് അവിടെ തന്റെ പിതാവിന്റെ ആടുകളെ മേയ്ക്കുന്ന ഇടയബാലനായി വളർന്നു. ആദ്യത്തെ ക്രിസ്മസ് രാത്രിയിലും അതേ വയലുകളിൽ ഇടയന്മാർ തങ്ങളുടെ ആട്ടിൻകൂട്ടത്തെ കാവൽ കാത്തിരുന്നു. ആടുകൾ തങ്ങളുടെ ഇടയനോട് ചേർന്നുനിൽക്കുകയും അവന്റെ സ്വരം തിരിച്ചറിയുകയും ചെയ്യുന്നു. ഈശോ പറഞ്ഞു: 'ഞാൻ നല്ല ഇടയനാണ്. എനിക്ക് എന്റേതിനെ അറിയാം; എന്റേത് എന്നെയും അറിയുന്നു.' ഇന്ന് ഒരു ആട് നമ്മുടെ ഗ്രാമത്തിലെ ഇടയന്മാരുടെ ആട്ടിൻകൂട്ടത്തോട് ചേരുന്നു, ബേത്‌ലെഹേമിലേക്കുള്ള വഴിയരികിൽ കാത്തുനിൽക്കുന്നു.",
+      },
+    },
+  },
+  {
+    day: 18,
+    en: {
+      title: "Elizabeth's Joy",
+      ref: "Luke 1:41-45",
+      reflection: "When Mary came to visit, baby John leapt for joy inside Elizabeth. Jesus brings joy wherever he goes, even before he is born.",
+      task: "Visit or call a grandparent or an elderly relative today, and bring them some joy.",
+      prayer: "Mary, teach me to carry Jesus to others, as you did for Elizabeth.",
+      verse: "When Elizabeth heard Mary's greeting, the baby leapt in her womb, and she was filled with the Holy Spirit. She cried out, 'Blessed are you among women, and blessed is the fruit of your womb! Blessed is she who believed that the Lord's promise would come true.'",
+      massPrayer: "Jesus, as Elizabeth welcomed you with joy, let my heart leap with joy when I receive you.",
+      story: {
+        title: "A Little Lamb Comes Home",
+        body: "The baby who leapt for joy inside Elizabeth grew up to be John the Baptist. Years later, when he saw Jesus walking by the river Jordan, he pointed and said, 'Look, here is the Lamb of God!' A lamb is small and gentle, and in the time of Jesus lambs were offered to God in the Temple. Jesus came as the Lamb of God, gentle and humble, to give his life for us. Today a little lamb comes home to our village, close to the stable where the Lamb of God will be born.",
+      },
+    },
+    ml: {
+      title: "എലിസബത്തിന്റെ സന്തോഷം",
+      ref: "ലൂക്കാ 1:41-45",
+      reflection: "മറിയം സന്ദർശിക്കാൻ വന്നപ്പോൾ, എലിസബത്തിന്റെ ഉദരത്തിൽ ശിശുവായ യോഹന്നാൻ സന്തോഷത്താൽ കുതിച്ചുചാടി. ജനിക്കുന്നതിനു മുമ്പുപോലും ഈശോ പോകുന്നിടത്തെല്ലാം സന്തോഷം കൊണ്ടുവരുന്നു.",
+      task: "ഇന്ന് മുത്തശ്ശനെയോ മുത്തശ്ശിയെയോ പ്രായമായ ഒരു ബന്ധുവിനെയോ സന്ദർശിക്കുകയോ ഫോൺ ചെയ്യുകയോ ചെയ്ത് അവർക്ക് സന്തോഷം നൽകുക.",
+      prayer: "മറിയമേ, എലിസബത്തിന്റെ അടുത്തേക്ക് അമ്മ ചെയ്തതുപോലെ, ഈശോയെ മറ്റുള്ളവരിലേക്ക് എത്തിക്കാൻ എന്നെ പഠിപ്പിക്കണമേ.",
+      verse: "മറിയത്തിന്റെ അഭിവാദനം കേട്ടപ്പോള്‍ എലിസബത്തിന്റെ ഉദരത്തില്‍ ശിശു കുതിച്ചു ചാടി. എലിസബത്ത് പരിശുദ്ധാത്മാവു നിറഞ്ഞവളായി. അവള്‍ ഉദ്‌ഘോഷിച്ചു: നീ സ്ത്രീകളില്‍ അനുഗൃഹീതയാണ്. നിന്റെ ഉദരഫലവും അനുഗൃഹീതം. എന്റെ കര്‍ത്താവിന്റെ അമ്മ എന്റെ അടുത്തു വരാനുള്ള ഈ ഭാഗ്യം എനിക്ക് എവിടെ നിന്ന്? ഇതാ, നിന്റെ അഭിവാദനസ്വരം എന്റെ ചെവികളില്‍ പതിച്ചപ്പോള്‍ ശിശു എന്റെ ഉദരത്തില്‍ സന്തോഷത്താല്‍ കുതിച്ചുചാടി. കര്‍ത്താവ് അരുളിച്ചെയ്ത കാര്യങ്ങള്‍ നിറവേറുമെന്ന് വിശ്വസിച്ചവള്‍ ഭാഗ്യവതി.",
+      massPrayer: "ഈശോയേ, എലിസബത്ത് സന്തോഷത്തോടെ അങ്ങയെ സ്വീകരിച്ചതുപോലെ, അങ്ങയെ സ്വീകരിക്കുമ്പോൾ എന്റെ ഹൃദയവും സന്തോഷത്താൽ തുള്ളിച്ചാടട്ടെ.",
+      story: {
+        title: "ഒരു കുഞ്ഞാട് വീട്ടിലെത്തുന്നു",
+        body: "എലിസബത്തിന്റെ ഉദരത്തിൽ സന്തോഷത്താൽ കുതിച്ചുചാടിയ ശിശു വളർന്ന് സ്നാപകയോഹന്നാനായി. വർഷങ്ങൾക്കുശേഷം ജോർദാൻ നദിക്കരയിലൂടെ ഈശോ നടന്നുപോകുന്നത് കണ്ടപ്പോൾ അവൻ ചൂണ്ടിക്കാണിച്ച് പറഞ്ഞു: 'ഇതാ ദൈവത്തിന്റെ കുഞ്ഞാട്!' കുഞ്ഞാട് ചെറുതും സൗമ്യവുമാണ്. ഈശോയുടെ കാലത്ത് ദേവാലയത്തിൽ ദൈവത്തിന് കുഞ്ഞാടുകളെ കാഴ്ചയർപ്പിച്ചിരുന്നു. നമുക്കുവേണ്ടി തന്റെ ജീവൻ നൽകാൻ, സൗമ്യനും എളിമയുള്ളവനുമായ ദൈവത്തിന്റെ കുഞ്ഞാടായി ഈശോ വന്നു. ഇന്ന് ഒരു കുഞ്ഞാട് നമ്മുടെ ഗ്രാമത്തിലെത്തുന്നു, ദൈവത്തിന്റെ കുഞ്ഞാട് പിറക്കാനിരിക്കുന്ന കാലിത്തൊഴുത്തിനരികിൽ.",
+      },
+    },
+  },
+  {
+    day: 19,
+    en: {
       title: "O Wisdom",
       ref: "Proverbs 9:1",
       reflection: "Wisdom has built her house. Jesus is the Wisdom of God, who comes to teach us the way.",
@@ -515,7 +573,7 @@ export const missions: Mission[] = [
     },
   },
   {
-    day: 18,
+    day: 20,
     en: {
       title: "O Lord of Israel",
       ref: "Exodus 3:1-6",
@@ -544,7 +602,7 @@ export const missions: Mission[] = [
     },
   },
   {
-    day: 19,
+    day: 21,
     en: {
       title: "O Root of Jesse",
       ref: "Matthew 1:20-21",
@@ -573,7 +631,7 @@ export const missions: Mission[] = [
     },
   },
   {
-    day: 20,
+    day: 22,
     en: {
       title: "O Key of David",
       ref: "Isaiah 22:22",
@@ -602,7 +660,7 @@ export const missions: Mission[] = [
     },
   },
   {
-    day: 21,
+    day: 23,
     en: {
       title: "O Rising Dawn",
       ref: "Luke 1:78-79",
@@ -631,11 +689,11 @@ export const missions: Mission[] = [
     },
   },
   {
-    day: 22,
+    day: 24,
     en: {
       title: "Mary's Yes",
       ref: "Luke 1:26-38",
-      reflection: "On this Fourth Sunday of Advent, Christmas is very near. Like Mary, we say yes to God.",
+      reflection: "Christmas is very near. Like Mary, we say yes to God.",
       task: "Pray one Hail Mary slowly. Then say a cheerful yes the next time your parents ask for help.",
       prayer: "Mother Mary, help me say yes to God as you did.",
       verse: "God sent the angel Gabriel to a young woman named Mary in Nazareth. Gabriel told her that God loved her and that she would be the mother of a son named Jesus, the Son of God. Mary trusted God and said yes with all her heart.",
@@ -648,7 +706,7 @@ export const missions: Mission[] = [
     ml: {
       title: "മറിയത്തിന്റെ സമ്മതം",
       ref: "ലൂക്കാ 1:26-38",
-      reflection: "ആഗമനകാലത്തിലെ നാലാം ഞായറാഴ്ച; ക്രിസ്മസ് വളരെ അടുത്തെത്തി. മറിയത്തെപ്പോലെ നമുക്കും ദൈവത്തോട് സമ്മതം പറയാം.",
+      reflection: "ക്രിസ്മസ് വളരെ അടുത്തെത്തി. മറിയത്തെപ്പോലെ നമുക്കും ദൈവത്തോട് സമ്മതം പറയാം.",
       task: "'നന്മ നിറഞ്ഞ മറിയമേ' എന്ന പ്രാർത്ഥന സാവധാനം ചൊല്ലുക. മാതാപിതാക്കൾ അടുത്ത തവണ സഹായം ചോദിക്കുമ്പോൾ സന്തോഷത്തോടെ സമ്മതിക്കുക.",
       prayer: "പരിശുദ്ധ അമ്മേ, അമ്മയെപ്പോലെ ദൈവത്തോട് സമ്മതം പറയാൻ എന്നെ സഹായിക്കണമേ.",
       verse: "ആറാംമാസം ഗബ്രിയേല്‍ ദൂതന്‍ ഗലീലിയില്‍ നസറത്ത് എന്ന പട്ടണത്തില്‍, ദാവീദിന്റെ വംശത്തില്‍പ്പെട്ട ജോസഫ് എന്നുപേരായ പുരുഷനുമായി വിവാഹനിശ്ചയം ചെയ്തിരുന്ന കന്യകയുടെ അടുത്തേക്ക്, ദൈവത്താല്‍ അയയ്ക്കപ്പെട്ടു. അവളുടെ പേര് മറിയം എന്നായിരുന്നു. ദൂതന്‍ അവളുടെ അടുത്തുവന്നു പറഞ്ഞു. ദൈവകൃപ നിറഞ്ഞവളേ! സ്വസ്തി, കര്‍ത്താവ് നിന്നോടുകൂടെ! ഈ വചനം കേട്ട് അവള്‍ വളരെ അസ്വസ്ഥയായി; എന്താണ് ഈ അഭിവാദനത്തിന്റെ അര്‍ഥം എന്ന് അവള്‍ ചിന്തിച്ചു. ദൂതന്‍ അവളോടു പറഞ്ഞു: മറിയമേ, നീ ഭയപ്പെടേണ്ടാ; ദൈവസന്നിധിയില്‍ നീ കൃപ കണ്ടെത്തിയിരിക്കുന്നു. നീ ഗര്‍ഭം ധരിച്ച് ഒരു പുത്രനെ പ്രസവിക്കും. നീ അവന് യേശു എന്ന് പേരിടണം. അവന്‍ വലിയവനായിരിക്കും; അത്യുന്നതന്റെ പുത്രന്‍ എന്നു വിളിക്കപ്പെടും. അവന്റെ പിതാവായ ദാവീദിന്റെ സിംഹാസനം ദൈവമായ കര്‍ത്താവ് അവനു കൊടുക്കും. യാക്കോബിന്റെ ഭവനത്തിന്‍മേല്‍ അവന്‍ എന്നേക്കും ഭരണം നടത്തും. അവന്റെ രാജ്യത്തിന് അവസാനം ഉണ്ടാകയില്ല. മറിയം ദൂതനോടു പറഞ്ഞു: ഇതെങ്ങനെ സംഭവിക്കും? ഞാന്‍ പുരുഷനെ അറിയുന്നില്ലല്ലോ. ദൂതന്‍ മറുപടി പറഞ്ഞു: പരിശുദ്ധാത്മാവ് നിന്റെ മേല്‍ വരും; അത്യുന്നതന്റെ ശക്തി നിന്റെ മേല്‍ ആവസിക്കും. ആകയാല്‍, ജനിക്കാന്‍ പോകുന്ന ശിശു പരിശുദ്ധന്‍, ദൈവപുത്രന്‍ എന്നു വിളിക്കപ്പെടും. ഇതാ, നിന്റെ ചാര്‍ച്ചക്കാരി വൃദ്ധയായ എലിസബത്തും ഒരു പുത്രനെ ഗര്‍ഭം ധരിച്ചിരിക്കുന്നു. വന്ധ്യയെന്നു പറഞ്ഞിരുന്ന അവള്‍ക്ക് ഇത് ആറാം മാസമാണ്. ദൈവത്തിന് ഒന്നും അസാധ്യമല്ല. മറിയം പറഞ്ഞു: ഇതാ, കര്‍ത്താവിന്റെ ദാസി! നിന്റെ വാക്ക് എന്നില്‍ നിറവേറട്ടെ! അപ്പോള്‍ ദൂതന്‍ അവളുടെ മുമ്പില്‍ നിന്നു മറഞ്ഞു.",
@@ -660,7 +718,7 @@ export const missions: Mission[] = [
     },
   },
   {
-    day: 23,
+    day: 25,
     en: {
       title: "O Emmanuel",
       ref: "Matthew 1:22-23",
@@ -689,7 +747,7 @@ export const missions: Mission[] = [
     },
   },
   {
-    day: 24,
+    day: 26,
     en: {
       title: "The Holy Night",
       ref: "Luke 2:1-7",
@@ -718,7 +776,7 @@ export const missions: Mission[] = [
     },
   },
   {
-    day: 25,
+    day: 27,
     en: {
       title: "Glory to God!",
       ref: "Luke 2:10-14",

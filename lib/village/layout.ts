@@ -1,4 +1,4 @@
-// The 25-day plan: which village treasure each day's task unlocks, which tree decoration each day's reading unlocks,
+// The 27-day plan (29 Nov to Christmas Day): which village treasure each day's task unlocks, which tree decoration each day's reading unlocks,
 // the bonus items bought with XP, and where each piece stands in the painted village by default.
 // Malayalam names and descriptions are DRAFT, pending review.
 // Spots are [u, v] in the painting from its top-left corner (0..1), where the piece meets the ground.
@@ -15,7 +15,9 @@ export type PaintingKey = "tall" | "wide";
 export type WorldKey =
   | "tree" | "olive" | "wreath" | "fire" | "bell" | "lilies" | "jar" | "lantern" | "hay" | "manger"
   | "donkey" | "ox" | "shepherd1" | "shepherd2" | "camel" | "melchior" | "caspar" | "balthazar"
-  | "gold" | "frankincense" | "myrrh" | "star" | "joseph" | "mary" | "baby";
+  | "gold" | "frankincense" | "myrrh" | "star" | "joseph" | "mary" | "baby"
+  // Days 17-18: a sheep and a lamb for the shepherds' flock (the XP shop keeps its own sheep and lamb too).
+  | "flockSheep" | "flockLamb";
 export type BonusKey = "santa" | "reindeer" | "snowman" | "sheep" | "lamb" | "firewood" | "angel" | "trumpetAngel" | "candle" | `decor${0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8}`;
 /** Free gifts for going to Mass (or praying at home) on days in a row. Mirrored in 008_mass_streak_gifts.sql. */
 export type StreakKey = "snowflake" | "candy" | "gingerbread" | "socks" | "gift";
@@ -47,15 +49,17 @@ export const REWARDS: { day: number; world: WorldKey; tree: TreeKey }[] = [
   { day: 14, world: "shepherd2", tree: "candle" },
   { day: 15, world: "camel", tree: "shepherd" },
   { day: 16, world: "melchior", tree: "wood" },
-  { day: 17, world: "caspar", tree: "sheep" },
-  { day: 18, world: "balthazar", tree: "silverbell" },
-  { day: 19, world: "gold", tree: "angel" },
-  { day: 20, world: "frankincense", tree: "blueribbon" },
-  { day: 21, world: "myrrh", tree: "goldribbon" },
-  { day: 22, world: "star", tree: "goldstar" },
-  { day: 23, world: "joseph", tree: "dove" },
-  { day: 24, world: "mary", tree: "topper" },
-  { day: 25, world: "baby", tree: "celebration" },
+  { day: 17, world: "flockSheep", tree: "silverstar" },
+  { day: 18, world: "flockLamb", tree: "rubyball" },
+  { day: 19, world: "caspar", tree: "sheep" },
+  { day: 20, world: "balthazar", tree: "silverbell" },
+  { day: 21, world: "gold", tree: "angel" },
+  { day: 22, world: "frankincense", tree: "blueribbon" },
+  { day: 23, world: "myrrh", tree: "goldribbon" },
+  { day: 24, world: "star", tree: "goldstar" },
+  { day: 25, world: "joseph", tree: "dove" },
+  { day: 26, world: "mary", tree: "topper" },
+  { day: 27, world: "baby", tree: "celebration" },
 ];
 
 /**
@@ -306,6 +310,20 @@ export const PIECES: Record<PieceKey, Piece> = {
     spot: s([0.8, 0.8], [0.73, 0.77]),
     glb: "/models/sheep.glb",
   },
+  flockSheep: {
+    name: { en: "Flock Sheep", ml: "ആട്ടിൻകൂട്ടത്തിലെ ആട്" },
+    desc: { en: "A sheep for the shepherds' flock. Jesus is the Good Shepherd.", ml: "ഇടയന്മാരുടെ ആട്ടിൻകൂട്ടത്തിന് ഒരു ആട്. ഈശോയാണ് നല്ല ഇടയൻ." },
+    height: 1.3,
+    spot: s([0.34, 0.84], [0.42, 0.9]),
+    glb: "/models/sheep.glb",
+  },
+  flockLamb: {
+    name: { en: "Little Lamb of the Flock", ml: "ആട്ടിൻകൂട്ടത്തിലെ കുഞ്ഞാട്" },
+    desc: { en: "'Look, here is the Lamb of God!' said John.", ml: "'ഇതാ ദൈവത്തിന്റെ കുഞ്ഞാട്!' എന്ന് യോഹന്നാൻ പറഞ്ഞു." },
+    height: 0.9,
+    spot: s([0.42, 0.92], [0.48, 0.96]),
+    glb: "/models/lamb.glb",
+  },
   lamb: {
     name: { en: "Little Lamb", ml: "കുഞ്ഞാട്" },
     desc: { en: "Jesus is the Lamb of God.", ml: "ഈശോ ദൈവത്തിന്റെ കുഞ്ഞാടാണ്." },
@@ -386,6 +404,8 @@ const ART: PieceKey[] = [
   "snowflake", "candy", "gingerbread", "socks", "gift",
 ];
 for (const k of ART) PIECES[k].image = asset(`/treasures/${k}.webp`);
+PIECES.flockSheep.image = PIECES.sheep.image; // same picture as the shop's sheep and lamb
+PIECES.flockLamb.image = PIECES.lamb.image;
 for (const p of Object.values(PIECES)) if (p.glb) p.glb = asset(p.glb);
 
 export const WORLD_KEYS: WorldKey[] = REWARDS.map((r) => r.world);
@@ -411,6 +431,8 @@ export const TREE_NAMES: Record<TreeKey, Name> = {
   candle: { en: "Warm lights", ml: "മെഴുകുതിരി വെളിച്ചം" },
   shepherd: { en: "Shepherd ornament", ml: "ഇടയന്റെ അലങ്കാരം" },
   wood: { en: "Wooden decoration", ml: "മരം കൊണ്ടുള്ള അലങ്കാരം" },
+  silverstar: { en: "Silver star", ml: "വെള്ളി നക്ഷത്രം" },
+  rubyball: { en: "Ruby bauble", ml: "മാണിക്യ ബോൾ" },
   sheep: { en: "Sheep ornament", ml: "ആട്ടിൻകുട്ടി അലങ്കാരം" },
   silverbell: { en: "Silver bell", ml: "വെള്ളി മണി" },
   angel: { en: "Angel ornament", ml: "മാലാഖ അലങ്കാരം" },

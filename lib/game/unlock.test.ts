@@ -40,10 +40,18 @@ test("Christmas Eve and Christmas depend on the date only", () => {
   assert.equal(isChristmas(c, d("2026-12-25")), true);
 });
 
+test("27 days: day 1 on 29 Nov, day 27 on Christmas Day", () => {
+  assert.equal(openDate(1, c), "2026-11-29");
+  assert.equal(openDate(27, c), "2026-12-25");
+  assert.equal(todayDay(c, d("2026-12-24")), 26);
+  assert.equal(isOpen(27, c, d("2026-12-24")), false);
+  assert.equal(isOpen(27, c, d("2026-12-25")), true);
+});
+
 test("after Christmas everything stays open", () => {
   for (const s of ["2026-12-31", "2027-01-06"]) {
-    assert.equal(todayDay(c, d(s)), 25);
-    assert.equal(isOpen(25, c, d(s)), true);
+    assert.equal(todayDay(c, d(s)), 27);
+    assert.equal(isOpen(27, c, d(s)), true);
     assert.equal(isChristmas(c, d(s)), true);
   }
 });

@@ -15,13 +15,15 @@ export const ORNAMENTS = {
   snowflake: { day: 13, shape: "snowflake", color: "#eef4ff" },
   shepherd: { day: 15, shape: "crook", color: "#8a5a32" },
   wood: { day: 16, shape: "star", color: "#a86a3c" },
-  sheep: { day: 17, shape: "sheep", color: "#f4efe6" },
-  silverbell: { day: 18, shape: "bell", color: "#c9ccd4" },
-  angel: { day: 19, shape: "angel", color: "#f6eedc" },
-  blueribbon: { day: 20, shape: "bow", color: "#355c9a" },
-  goldribbon: { day: 21, shape: "bow", color: "#d1a347" },
-  goldstar: { day: 22, shape: "star", color: "#ffd56b" },
-  dove: { day: 23, shape: "dove", color: "#ffffff" },
+  silverstar: { day: 17, shape: "star", color: "#dfe3ea" },
+  rubyball: { day: 18, shape: "ball", color: "#8e1b3a" },
+  sheep: { day: 19, shape: "sheep", color: "#f4efe6" },
+  silverbell: { day: 20, shape: "bell", color: "#c9ccd4" },
+  angel: { day: 21, shape: "angel", color: "#f6eedc" },
+  blueribbon: { day: 22, shape: "bow", color: "#355c9a" },
+  goldribbon: { day: 23, shape: "bow", color: "#d1a347" },
+  goldstar: { day: 24, shape: "star", color: "#ffd56b" },
+  dove: { day: 25, shape: "dove", color: "#ffffff" },
 } as const satisfies Record<string, { day: number; shape: Shape; color: string }>;
 
 export type OrnamentKind = keyof typeof ORNAMENTS;
@@ -32,7 +34,7 @@ export const LIGHT_COLORS = { champagne: 2, multi: 7, candle: 14 } as const;
 export type LightColor = keyof typeof LIGHT_COLORS;
 
 /** Tree features that are not hung by hand. */
-export const FEATURES = { lights: 2, lightString: 7, garland: 10, topper: 24, celebration: 25 } as const;
+export const FEATURES = { lights: 2, lightString: 7, garland: 10, topper: 26, celebration: 27 } as const;
 
 export const MAX_ORNAMENTS = 80;
 

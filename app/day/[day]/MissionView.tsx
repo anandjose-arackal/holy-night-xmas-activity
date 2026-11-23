@@ -18,7 +18,8 @@ import { completeMission, completePrayer, completeStep, type FullProgress, loadP
 import { isOpen } from "@/lib/game/unlock";
 import { MASS_HOME, XP, type Step } from "@/lib/game/xp";
 import { prayXp } from "@/lib/voice/accumulator";
-import { parseRef } from "@/lib/bible";
+import { parseRef, readChapter } from "@/lib/bible";
+import { GOSPEL } from "@/content/readings";
 import { useT } from "@/lib/i18n";
 import { asset } from "@/lib/asset";
 import { parch, pill, redBtn, tag } from "@/lib/ui";
@@ -71,6 +72,17 @@ export function MissionView({ mission }: { mission: Mission }) {
   const [error, setError] = useState(false);
   const [sheet, setSheet] = useState<"pray" | "share" | null>(null);
   const xpPop = useXpPop();
+  // The day's Gospel in the Syro-Malabar calendar (content/readings.ts), its Malayalam text from the POC Bible.
+  const gospel = GOSPEL[mission.day];
+  const [gospelText, setGospelText] = useState<string | null>(null);
+  useEffect(() => {
+    const at = gospel ? parseRef(gospel.ref) : null;
+    if (!at) return;
+    readChapter(at.b, at.c).then(
+      (vs) => setGospelText(vs.filter((v) => at.verses.includes(v.verse)).map((v) => v.text).join(" ") || null),
+      () => {}, // no text: the reference and its link still show
+    );
+  }, [gospel]);
   // After the task: the treasure unlock, then the day's story, each as its own full-screen scene.
   const asked = useSearchParams().get("step"); // from the dashboard's activity links
   const [scene, setScene] = useState<"unlock" | "story" | null>(asked === "story" ? "story" : null);
@@ -169,6 +181,8 @@ export function MissionView({ mission }: { mission: Mission }) {
     (done("read") ? XP.read : 0) + (done("mass") ? massXp : 0) + XP.task + (done("story") ? XP.story : 0) + (prog.prayXp[day] ?? 0);
   const prayers = VOICE ? DAY_PRAYERS[day] : undefined;
   const bibleAt = parseRef(mission.en.ref); // the day's passage, opened in the Bible reader
+  const gospelAt = gospel ? parseRef(gospel.ref) : null;
+  const gospelRef = gospel && (lang === "ml" ? gospel.ml : gospel.ref);
   const prayedVoice = prog.prayVoiceDays.includes(day);
   async function savePrayer(secs: number | null) {
     const before = prog!.prayXp[day];
@@ -213,6 +227,27 @@ export function MissionView({ mission }: { mission: Mission }) {
         {
           [
             <Part key="read" icon={<BookIcon width={22} height={22} />} title={`1. ${t.stepRead}`} done={done("read")}>
+                    {gospel && (
+                      <div className="flex flex-col gap-1 rounded-2xl border-2 border-[#e2c58a] bg-[#fffaf0] p-3">
+                        <p className="font-display text-sm font-bold text-crimson-dark">{t.todayGospel}</p>
+                        <p lang="ml" className="font-display text-lg leading-snug font-black text-crimson-dark">{gospel.title}</p>
+                        {gospelText && (
+                          <ClampText lines={6}>
+                            <p lang="ml" className="leading-relaxed">{gospelText}</p>
+                          </ClampText>
+                        )}
+                        {gospelAt ? (
+                          <Link
+                            href={`/bible/read?b=${gospelAt.b}&c=${gospelAt.c}&v=${gospelAt.verses[0]}-${gospelAt.verses[gospelAt.verses.length - 1]}`}
+                            className="flex min-h-11 items-center gap-1 text-sm font-semibold text-crimson-dark underline decoration-rim decoration-2 underline-offset-4"
+                          >
+                            <BookIcon width={18} height={18} /> {gospelRef}
+                          </Link>
+                        ) : (
+                          <p className="text-sm font-semibold text-ink-soft">— {gospelRef}</p>
+                        )}
+                      </div>
+                    )}
                     <ClampText lines={5}><blockquote className="font-display text-lg leading-relaxed italic">“{m.verse}”</blockquote></ClampText>
                     <div className="flex items-center justify-between gap-2">
                       {bibleAt ? (

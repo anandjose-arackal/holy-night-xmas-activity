@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Bethlehem — 25 days to Christmas",
+    name: "Bethlehem — 27 days to Christmas",
     short_name: "Bethlehem",
     start_url: "/",
     display: "standalone",

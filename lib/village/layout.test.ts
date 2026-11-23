@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { PIECES, REWARDS, sanitizeLayout, visibleWorld, walkable, type PaintingKey, type PieceKey, type WorldKey } from "./layout.ts";
 
-test("every day 1..25 has exactly one reward, and every treasure is a different piece", () => {
-  assert.deepEqual(REWARDS.map((r) => r.day), Array.from({ length: 25 }, (_, i) => i + 1));
-  assert.equal(new Set(REWARDS.map((r) => r.world)).size, 25);
+test("every day 1..27 has exactly one reward, and every treasure is a different piece", () => {
+  assert.deepEqual(REWARDS.map((r) => r.day), Array.from({ length: 27 }, (_, i) => i + 1));
+  assert.equal(new Set(REWARDS.map((r) => r.world)).size, 27);
 });
 
 test("every piece starts on walkable ground in both paintings (sky pieces inside the picture)", () => {

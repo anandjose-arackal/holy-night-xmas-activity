@@ -73,7 +73,7 @@ test("XP: 1 per repetition, +10 big prayer, +20 for voice, capped at 50", () => 
 });
 
 test("every day has a prayer set with known prayers", () => {
-  for (let d = 1; d <= 25; d++) {
+  for (let d = 1; d <= 27; d++) {
     assert.ok(DAY_PRAYERS[d]?.length, `day ${d}`);
     for (const p of DAY_PRAYERS[d]) assert.ok(PRAYERS[p.key], p.key);
   }

@@ -6,7 +6,7 @@ import type { Lang } from "@/content/missions";
 // DRAFT Malayalam — needs native review together with content/missions.ts.
 const en = {
   appName: "Bethlehem",
-  tagline: "25 days to Christmas",
+  tagline: "27 days to Christmas",
   forGuardians: "For parents and guardians",
   loginIntro: "Sign in to save your children's villages and open them on any phone or laptop.",
   email: "Your email",
@@ -220,6 +220,7 @@ const en = {
   xmasTomorrow: "Christmas is tomorrow!",
   happyXmas: "Happy Christmas!",
   shareXp: "+{n} XP for sharing (up to 3 a day)",
+  todayGospel: "Today's Gospel · Syro-Malabar Church",
   storyDone: "I read the story",
   nextStory: "Read today's story",
   todayStory: "Today's Story",
@@ -264,7 +265,7 @@ const en = {
 
 const ml: typeof en = {
   appName: "ബേത്‌ലെഹേം",
-  tagline: "ക്രിസ്മസിലേക്ക് 25 ദിവസങ്ങൾ",
+  tagline: "ക്രിസ്മസിലേക്ക് 27 ദിവസങ്ങൾ",
   forGuardians: "മാതാപിതാക്കൾക്കും രക്ഷിതാക്കൾക്കും",
   loginIntro: "കുട്ടികളുടെ ഗ്രാമങ്ങൾ സൂക്ഷിക്കാനും ഏത് ഫോണിലും ലാപ്ടോപ്പിലും തുറക്കാനും സൈൻ ഇൻ ചെയ്യുക.",
   email: "നിങ്ങളുടെ ഇമെയിൽ",
@@ -478,6 +479,7 @@ const ml: typeof en = {
   xmasTomorrow: "നാളെ ക്രിസ്മസ്!",
   happyXmas: "ക്രിസ്മസ് ആശംസകൾ!",
   shareXp: "പങ്കിട്ടാൽ +{n} XP (ദിവസം 3 തവണ വരെ)",
+  todayGospel: "ഇന്നത്തെ സുവിശേഷം · സീറോ മലബാർ സഭ",
   storyDone: "ഞാൻ കഥ വായിച്ചു",
   nextStory: "ഇന്നത്തെ കഥ വായിക്കാം",
   todayStory: "ഇന്നത്തെ കഥ",
