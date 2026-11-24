@@ -29,6 +29,11 @@ export default function SignIn() {
     supabase?.auth.getSession().then(({ data }) => {
       if (data.session) router.replace("/home");
     });
+    // A device that has never picked a child is most likely a new family: open on "create account".
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is only readable after mount
+      if (!localStorage.getItem("child")) setMode("signup");
+    } catch {}
   }, [router]);
 
   async function submit(form: FormData) {
@@ -124,6 +129,7 @@ export default function SignIn() {
             {mode === "signup" && (
               <>
                 <p className="-mt-1 px-2 text-sm text-ink-soft">{t.passwordRule}</p>
+                <p className="-mt-1 px-2 text-sm font-semibold text-crimson-dark">{t.phoneNote}</p>
               </>
             )}
 

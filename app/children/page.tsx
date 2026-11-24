@@ -194,7 +194,8 @@ export default function Children() {
         </Link>
         <button
           type="button"
-          className="min-h-11 text-crimson underline"
+          // Hidden during first-time setup: nothing to delete yet, and it sits right under Save.
+          className={`min-h-11 text-crimson underline ${first ? "hidden" : ""}`}
           onClick={() =>
             confirm(t.confirmDelete) &&
             deleteAccount().then(

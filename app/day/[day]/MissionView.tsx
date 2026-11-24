@@ -33,6 +33,8 @@ const shell =
   "day-bg flex min-h-dvh flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] text-ink landscape:bg-fixed";
 const ghostBtn =
   `${pill} disabled:opacity-50`;
+const secondBtn =
+  "inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border-[3px] border-rim bg-gradient-to-b from-[#fffaf0] to-parchment-2 font-display text-xl font-bold text-crimson-dark shadow-md transition active:scale-[0.98]";
 
 /** One parchment section with a round icon badge; a green tick once its step is done. */
 function Part({ icon, title, done, children }: { icon: ReactNode; title: string; done?: boolean; children: ReactNode }) {
@@ -170,7 +172,7 @@ export function MissionView({ mission }: { mission: Mission }) {
       xpPop.pop(`+${gained} XP`);
       if (step === "read" || step === "mass") go(STEP_ORDER.indexOf(step) + 1);
       if (step === "task") setScene("unlock");
-      if (step === "story") router.push("/home");
+      if (step === "story" && !done("task")) router.push("/home"); // after the task, stay: the village button shows
     } catch {
       setError(true);
     }
@@ -184,6 +186,18 @@ export function MissionView({ mission }: { mission: Mission }) {
   const gospelAt = gospel ? parseRef(gospel.ref) : null;
   const gospelRef = gospel && (lang === "ml" ? gospel.ml : gospel.ref);
   const prayedVoice = prog.prayVoiceDays.includes(day);
+  // The day's treasure into the village: a placed piece, or the tree/star view for the day.
+  // A full load, not router.push: /play reads its query once on first render.
+  const villageBtn = (cls: string) => (
+    <button
+      type="button"
+      className={`${cls} w-full px-4! text-[clamp(0.9rem,4.6vw,1.25rem)]! whitespace-nowrap`}
+      onClick={() => location.assign(reward.world !== "tree" && reward.world !== "star" ? `/play?place=${reward.world}` : `/play?new=${day}`)}
+    >
+      <VillageIcon width={28} height={28} className={cls === redBtn ? "text-[#f5c542]" : ""} />
+      {reward.world !== "tree" && reward.world !== "star" ? t.addToVillage : t.seeVillage}
+    </button>
+  );
   async function savePrayer(secs: number | null) {
     const before = prog!.prayXp[day];
     const xp = await completePrayer(child.id, day, prayers!, secs);
@@ -220,6 +234,17 @@ export function MissionView({ mission }: { mission: Mission }) {
                 </button>
               </li>
             ))}
+            {/* The story is the day's 4th step; it opens as its own full-screen scene. */}
+            <li>
+              <button
+                type="button"
+                onClick={() => setScene("story")}
+                className={`min-h-9 rounded-full border-[3px] px-3 font-display text-sm font-bold ${done("story") ? "border-[#f5c542] bg-[#fff6dc] text-crimson-dark" : "border-rim/60 bg-white/70 text-ink-soft"}`}
+              >
+                {done("story") ? "✓ " : "4. "}
+                {t.stepStory}
+              </button>
+            </li>
           </ol>
         </header>
 
@@ -335,16 +360,9 @@ export function MissionView({ mission }: { mission: Mission }) {
             </button>
           ) : (
             <button type="button" className={`${done("task") ? redBtn : pill} flex-1`} onClick={() => setScene("story")}>
-              {done("task") ? (
-                <>
-                  <BookIcon width={24} height={24} className="text-[#f5c542]" />
-                  {done("story") ? t.todayStory : t.nextStory}
-                </>
-              ) : (
-                <>
-                  {t.skip} <Chevron width={22} height={22} strokeWidth={3} />
-                </>
-              )}
+              {/* Always says where it goes: the story (it used to read "Skip" before the task was done). */}
+              <BookIcon width={24} height={24} className={done("task") ? "text-[#f5c542]" : ""} />
+              {done("story") ? t.todayStory : t.nextStory}
             </button>
           )}
         </nav>
@@ -402,28 +420,11 @@ export function MissionView({ mission }: { mission: Mission }) {
                 {/* eslint-disable-next-line @next/next/no-img-element -- small local art */}
                 <img src={asset("/treasures/star.webp")} alt="" width={40} height={40} className="-my-2" />+{dayXp} XP
               </p>
-              {reward.world !== "tree" && reward.world !== "star" ? (
-                <button type="button" className={`${redBtn} w-full px-4! text-[clamp(0.9rem,4.6vw,1.25rem)]! whitespace-nowrap`}
-                  // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- /play reads its query once on first render; a full load guarantees it is there
-                  onClick={() => location.assign(`/play?place=${reward.world}`)}>
-                  <VillageIcon width={28} height={28} className="text-[#f5c542]" />
-                  {t.addToVillage}
-                </button>
-              ) : (
-                <button type="button" className={`${redBtn} w-full`}
-                  // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- /play reads its query once on first render; a full load guarantees it is there
-                  onClick={() => location.assign(`/play?new=${day}`)}>
-                  <VillageIcon width={28} height={28} className="text-[#f5c542]" />
-                  {t.seeVillage}
-                </button>
-              )}
-              <button
-                type="button"
-                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border-[3px] border-rim bg-gradient-to-b from-[#fffaf0] to-parchment-2 font-display text-xl font-bold text-crimson-dark shadow-md transition active:scale-[0.98]"
-                onClick={() => setScene("story")}
-              >
-                <BookIcon width={22} height={22} /> {t.nextStory} <Chevron width={22} height={22} strokeWidth={3} />
+              {/* The story first; the village waits at the end of it, so the story is not skipped on the way. */}
+              <button type="button" className={`${redBtn} w-full`} onClick={() => setScene("story")}>
+                <BookIcon width={24} height={24} className="text-[#f5c542]" /> {t.nextStory} <Chevron width={22} height={22} strokeWidth={3} />
               </button>
+              {villageBtn(secondBtn)}
             </div>
           </div>
         </section>
@@ -454,9 +455,13 @@ export function MissionView({ mission }: { mission: Mission }) {
               <p className="text-lg leading-relaxed whitespace-pre-line">{m.story.body}</p>
             </article>
             {done("story") ? (
-              <button type="button" className={redBtn} onClick={() => router.push("/home")}>
-                {t.continueJourney} <Chevron width={22} height={22} strokeWidth={3} />
-              </button>
+              <>
+                {/* After the task, the treasure goes into the village here; before it, back to the journey. */}
+                {done("task") && villageBtn(redBtn)}
+                <button type="button" className={done("task") ? secondBtn : redBtn} onClick={() => router.push("/home")}>
+                  {t.continueJourney} <Chevron width={22} height={22} strokeWidth={3} />
+                </button>
+              </>
             ) : (
               <button type="button" className={redBtn} disabled={!!busy} onClick={() => finish("story")}>
                 <CheckIcon width={24} height={24} strokeWidth={3} /> {t.storyDone} · +{XP.story} XP
