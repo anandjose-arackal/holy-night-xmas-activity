@@ -46,3 +46,9 @@ test("Mass gifts come with days of Mass in a row", async () => {
   assert.deepEqual(massGifts([1, 2, 3, 4, 10, 11]), ["snowflake", "candy"]);
   assert.deepEqual(massGifts(Array.from({ length: 12 }, (_, i) => i + 1)), ["snowflake", "candy", "gingerbread", "socks", "gift"]);
 });
+
+test("from 1 December trial-day XP stops counting; during the trial it counts", () => {
+  const p = { ...emptyProgress(), taskDays: [1, 2, 3], readDays: [2, 3], prayXp: { 1: 40, 3: 20 }, onTimeDays: [1, 2, 3] };
+  assert.equal(earned(p), 3 * 20 + 2 * 10 + 40 + 20 + 25); // trial still on (xpFrom 1): all of it, streak of 3
+  assert.equal(earned({ ...p, xpFrom: 3 }), 20 + 10 + 20); // 1 December: only day 3, no streak bonus
+});

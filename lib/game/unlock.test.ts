@@ -62,3 +62,15 @@ test("days to Christmas count down in Kolkata time", () => {
   assert.equal(daysToChristmas(c, d("2026-12-25")), 0);
   assert.equal(daysToChristmas(c, new Date("2026-12-24T19:00:00Z")), 0); // already 25 Dec, 00:30 in Kolkata
 });
+
+test("29-30 November are trial days; 1 December is Day 1 and XP counts from it", async () => {
+  const { isTrial, shownDay, xpFromDay, dayLabel, REAL_DAYS } = await import("./unlock.ts");
+  assert.equal(isTrial(todayDay(c, d("2026-11-30"))), true);
+  assert.equal(isTrial(todayDay(c, d("2026-12-01"))), false);
+  assert.equal(shownDay(3), 1);
+  assert.equal(shownDay(27), REAL_DAYS);
+  assert.equal(dayLabel(2, { trial: "Trial", day: "Day" }), "Trial 2");
+  assert.equal(dayLabel(3, { trial: "Trial", day: "Day" }), "Day 1");
+  assert.equal(xpFromDay(2), 1);
+  assert.equal(xpFromDay(3), 3);
+});

@@ -5,7 +5,7 @@ import { BackIcon, CheckIcon, Divider, LockIcon, Ribbon, TabBar, roundBtn } from
 import { missions } from "@/content/missions";
 import { useEffect, useState } from "react";
 import { type FullProgress, loadProgress } from "@/lib/data";
-import { DAYS, openDate, todayDay } from "@/lib/game/unlock";
+import { REAL_DAYS, dayLabel, isTrial, openDate, shownDay, todayDay } from "@/lib/game/unlock";
 import { useT } from "@/lib/i18n";
 import { parch, pill } from "@/lib/ui";
 import { useChild } from "@/lib/useChild";
@@ -26,7 +26,7 @@ export default function Calendar() {
     new Intl.DateTimeFormat(lang === "ml" ? "ml-IN" : "en-IN", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(ymd));
 
   return (
-    <main className="day-bg flex min-h-dvh flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] text-ink landscape:bg-fixed">
+    <main className="day-bg flex min-h-dvh flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] text-ink">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4">
         <header className="flex flex-col gap-1">
           <Link href="/home" aria-label={t.back} className={`${roundBtn} self-start`}>
@@ -36,7 +36,7 @@ export default function Calendar() {
             title={t.activities}
             sub={
               <p className={`${pill} min-h-9 text-lg`}>
-                ★ {child.days.length} {t.of} {DAYS}
+                ★ {child.days.filter((d) => !isTrial(d)).length} {t.of} {REAL_DAYS}
               </p>
             }
           />
@@ -56,7 +56,7 @@ export default function Calendar() {
               const done = child.days.includes(m.day);
               const open = m.day <= today;
               const isToday = m.day === today;
-              const label = `${t.day} ${m.day}: ${open ? m[lang].title : `${t.locked} ${date(openDate(m.day, campaign))}`}${done ? ` (${t.completed})` : ""}`;
+              const label = `${dayLabel(m.day, t)}: ${open ? m[lang].title : `${t.locked} ${date(openDate(m.day, campaign))}`}${done ? ` (${t.completed})` : ""}`;
               const tile = `relative flex aspect-[4/5] flex-col items-center justify-center rounded-2xl border-2 font-display transition ${
                 done
                   ? "border-rim bg-gradient-to-b from-[#d8333a] to-crimson-dark text-white shadow-[0_3px_0_#5a0e12]"
@@ -66,7 +66,7 @@ export default function Calendar() {
               } ${isToday && !done ? "ring-4 ring-[#f5c542] animate-pulse motion-reduce:animate-none" : ""}`;
               const body = (
                 <>
-                  <span className="text-2xl leading-none font-black">{m.day}</span>
+                  <span className="text-2xl leading-none font-black">{isTrial(m.day) ? `T${m.day}` : shownDay(m.day)}</span>
                   {done ? (
                     <CheckIcon width={18} height={18} strokeWidth={3} />
                   ) : open ? (

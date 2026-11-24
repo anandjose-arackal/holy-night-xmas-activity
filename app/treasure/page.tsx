@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { BackIcon, CheckIcon, VillageIcon, Divider, Ribbon, TabBar, XpPill, roundBtn } from "@/components/day";
 import { TreasureArt } from "@/components/TreasureArt";
 import { buyBonus, type FullProgress, loadProgress } from "@/lib/data";
-import { DAYS, isChristmas } from "@/lib/game/unlock";
+import { DAYS, TRIAL_DAYS, dayLabel, isChristmas, todayDay } from "@/lib/game/unlock";
 import { PRICES, balance, canBuy, massGifts } from "@/lib/game/xp";
 import { useT } from "@/lib/i18n";
 import { asset } from "@/lib/asset";
@@ -32,6 +32,7 @@ export default function Treasure() {
   const dayCount = REWARDS.filter((r) => earned.has(r.world)).length;
   const sel = picked ?? REWARDS.find((r) => earned.has(r.world))?.world ?? null;
   const xp = balance(prog);
+  const shopShut = todayDay(campaign) <= TRIAL_DAYS; // trial-day XP resets on 1 December, so the shop opens then
 
   async function buy(k: (typeof BONUS_KEYS)[number]) {
     setBusy(true);
@@ -79,7 +80,7 @@ export default function Treasure() {
   const selDay = sel && REWARDS.find((r) => r.world === sel)?.day;
 
   return (
-    <main className="day-bg flex min-h-dvh flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] text-ink landscape:bg-fixed">
+    <main className="day-bg flex min-h-dvh flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] text-ink">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4">
         <header className="relative">
           <Link href="/home" aria-label={t.back} className={`${roundBtn} absolute top-1 left-0 z-30`}>
@@ -104,6 +105,7 @@ export default function Treasure() {
           <div className="grid grid-cols-3 gap-2.5">{REWARDS.map((r) => tile(r.world, !earned.has(r.world)))}</div>
           <Divider />
           <h2 className="text-center font-display text-xl font-black text-crimson-dark">{t.bonusTreasures}</h2>
+          <p className="-mt-2 text-center text-sm text-ink-soft">{shopShut ? t.shopOpens : t.shopNote}</p>
           <div className="grid grid-cols-3 gap-3">
             {BONUS_KEYS.map((k) =>
               tile(k, !earned.has(k), !earned.has(k) && <span className="text-xs font-bold text-crimson-dark">★ {PRICES[k]} XP</span>),
@@ -136,10 +138,11 @@ export default function Treasure() {
               )}
               {selLocked && !selBonus && !selGift && (
                 <p className="text-center text-sm font-semibold text-ink-soft">
-                  {t.unlockOn} {selDay}
+                  {t.unlockOn} {selDay && dayLabel(selDay, t)}
                 </p>
               )}
-              {selLocked && selBonus && (
+              {selLocked && selBonus && shopShut && <p className="text-center text-sm font-semibold text-ink-soft">{t.shopOpens}</p>}
+              {selLocked && selBonus && !shopShut && (
                 <button type="button" className={redBtn} disabled={busy || !canBuy(prog, sel as (typeof BONUS_KEYS)[number])} onClick={() => buy(sel as (typeof BONUS_KEYS)[number])}>
                   {canBuy(prog, sel as (typeof BONUS_KEYS)[number]) ? `${t.buy} · ★ ${PRICES[sel as (typeof BONUS_KEYS)[number]]}` : t.needXp}
                 </button>

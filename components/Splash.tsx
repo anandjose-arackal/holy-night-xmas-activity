@@ -11,8 +11,6 @@ import { parch } from "@/lib/ui";
 const IMAGES = [
   "/brand/cml-logo.webp",
   "/brand/holy-night.webp",
-  "/bg/tall.webp",
-  "/bg/wide.webp",
   "/bg/village-tall.webp",
   "/bg/village-tall-night.webp",
   "/treasures/gold.webp",

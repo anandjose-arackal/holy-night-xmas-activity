@@ -60,6 +60,8 @@ export type Progress = {
   /** XP from sharing verse pictures (20 a share, at most 3 a day). */
   shareXp: number;
   bonus: BonusKey[];
+  /** The first day whose XP counts (lib/game/unlock.ts xpFromDay): 1 during the trial days, then 3. */
+  xpFrom?: number;
 };
 
 export const emptyProgress = (): Progress => ({ taskDays: [], readDays: [], massDays: [], storyDays: [], onTimeDays: [], massOnTimeDays: [], massXp: {}, prayXp: {}, prayVoiceDays: [], shareXp: 0, bonus: [] });
@@ -90,14 +92,16 @@ export function currentStreak(onTimeDays: number[], today: number) {
 }
 
 export function earned(p: Progress) {
-  const run = longestRun(p.onTimeDays);
+  const from = p.xpFrom ?? 1;
+  const n = (days: number[]) => [...new Set(days)].filter((d) => d >= from);
+  const run = longestRun(n(p.onTimeDays));
   return (
-    new Set(p.readDays).size * XP.read +
-    [...new Set(p.massDays)].reduce((sum, d) => sum + (p.massXp[d] ?? 10), 0) +
-    Object.values(p.prayXp).reduce((sum, x) => sum + x, 0) +
-    p.shareXp +
-    new Set(p.taskDays).size * XP.task +
-    new Set(p.storyDays).size * XP.story +
+    n(p.readDays).length * XP.read +
+    n(p.massDays).reduce((sum, d) => sum + (p.massXp[d] ?? 10), 0) +
+    Object.entries(p.prayXp).reduce((sum, [d, x]) => sum + (+d >= from ? x : 0), 0) +
+    p.shareXp + // already counted from xpFrom by loadProgress
+    n(p.taskDays).length * XP.task +
+    n(p.storyDays).length * XP.story +
     STREAK_BONUS.filter(([days]) => run >= days).reduce((sum, [, xp]) => sum + xp, 0)
   );
 }

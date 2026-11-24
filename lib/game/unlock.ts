@@ -1,5 +1,20 @@
 export const DAYS = 27; // 29 Nov to Christmas Day
 
+/**
+ * 29–30 Nov are trial days: everything works and earns XP while they last, but on 1 December (day 3) XP starts
+ * again from 0 for everyone, and the shop opens. From then on 1 December is shown as "Day 1" of 25.
+ * Mirrored in supabase/migrations/019_trial_days.sql.
+ */
+export const TRIAL_DAYS = 2;
+export const REAL_DAYS = DAYS - TRIAL_DAYS; // 25: 1 December to Christmas Day
+export const isTrial = (day: number) => day >= 1 && day <= TRIAL_DAYS;
+/** The number shown for a day: trial days are Trial 1–2, then 1 December is Day 1. */
+export const shownDay = (day: number) => (isTrial(day) ? day : day - TRIAL_DAYS);
+/** "Trial 2", "Day 1": the name of a day as children see it, from i18n's `trial` and `day`. */
+export const dayLabel = (day: number, t: { trial: string; day: string }) => `${isTrial(day) ? t.trial : t.day} ${shownDay(day)}`;
+/** The first day whose XP counts: every day during the trial, then only the real days. */
+export const xpFromDay = (today: number) => (today > TRIAL_DAYS ? TRIAL_DAYS + 1 : 1);
+
 /** One Advent season. The database row in advent_campaigns is authoritative; this is the demo-mode copy. */
 export type Campaign = {
   id?: number;

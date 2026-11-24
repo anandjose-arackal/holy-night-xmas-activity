@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Anek_Malayalam, Merriweather, Noto_Sans, Noto_Sans_Malayalam } from "next/font/google";
+import { Frost } from "@/components/Frost";
 import { Splash } from "@/components/Splash";
 import "./globals.css";
 
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`${latin.variable} ${malayalam.variable} ${malayalamTight.variable} ${serif.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col font-sans">
         {children}
+        <Frost />
         <Splash />
       </body>
     </html>

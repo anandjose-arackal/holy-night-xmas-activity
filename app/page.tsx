@@ -77,7 +77,7 @@ export default function SignIn() {
   const message = { confirm: t.confirmSent, reset: t.resetSent, bad: t.badLogin, badId: t.badId, taken: t.phoneTaken, phoneReset: t.phoneReset, error: t.error }[status as string];
 
   return (
-    <main className="day-bg relative flex min-h-dvh flex-col items-center gap-6 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] landscape:bg-fixed">
+    <main className="day-bg relative flex min-h-dvh flex-col items-center gap-6 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))]">
       <div className="flex w-full max-w-md justify-end">
         <LangToggle />
       </div>

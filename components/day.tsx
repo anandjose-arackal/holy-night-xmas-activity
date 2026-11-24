@@ -58,6 +58,8 @@ export const StarIcon = (p: Icon) => svg(p, <path d="m12 3 2.7 5.6 6.1.9-4.4 4.3
 export const HeartIcon = (p: Icon) => svg(p, <path d="M12 20s-7-4.5-9-9a4.5 4.5 0 0 1 9-3 4.5 4.5 0 0 1 9 3c-2 4.5-9 9-9 9z" />);
 export const MicIcon = (p: Icon) => svg(p, <><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></>);
 export const ShareIcon = (p: Icon) => svg(p, <><circle cx="18" cy="5" r="2.5" /><circle cx="6" cy="12" r="2.5" /><circle cx="18" cy="19" r="2.5" /><path d="m8.2 10.8 7.6-4.6M8.2 13.2l7.6 4.6" /></>);
+export const SpeakerIcon = ({ off, ...p }: Icon & { off?: boolean }) =>
+  svg(p, <><path d="M4 9h4l5-4v14l-5-4H4z" />{off ? <path d="m16 9 6 6M22 9l-6 6" /> : <path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" />}</>);
 export const DownloadIcon = (p: Icon) => svg(p, <path d="M12 4v11m-5-5 5 5 5-5M5 20h14" />);
 
 const TABS = [

@@ -27,6 +27,7 @@ import {
   type Spot,
 } from "@/lib/village/layout";
 import { useT } from "@/lib/i18n";
+import { play, type Sound } from "@/lib/sound";
 import * as P from "./parts";
 
 /** Bounds in the model's own space, ignoring wherever it is mounted now (a hot reload leaves it mounted and scaled). */
@@ -269,6 +270,56 @@ function Spotlight({ size, label }: { size: number; label: string }) {
   );
 }
 
+/** What a piece does when tapped outside arrange mode: a little motion, and a sound when there is a file for it. */
+type Kind = "nod" | "hop" | "sway" | "swing" | "bounce" | "flame" | "shine";
+const PEOPLE: PieceKey[] = ["shepherd1", "shepherd2", "joseph", "melchior", "caspar", "balthazar"];
+const REACT: Partial<Record<PieceKey, [Kind, Sound?]>> = {
+  sheep: ["hop", "sheep"],
+  flockSheep: ["hop", "sheep"],
+  lamb: ["hop", "sheep"],
+  flockLamb: ["hop", "sheep"],
+  camel: ["nod", "camel"],
+  donkey: ["nod", "donkey"],
+  ox: ["nod"],
+  santa: ["nod", "hohoho"],
+  reindeer: ["hop", "reindeer"],
+  ...Object.fromEntries(PEOPLE.map((k) => [k, ["nod"]])),
+  lilies: ["sway"],
+  olive: ["sway"],
+  tree: ["sway", "shimmer"],
+  bell: ["swing", "bell"],
+  fire: ["flame"],
+  firewood: ["flame"],
+  candle: ["flame"],
+  lantern: ["flame"],
+  star: ["shine", "shine"],
+  angel: ["shine", "shine2"],
+  trumpetAngel: ["shine", "shine2"],
+  baby: ["shine", "shine"],
+  mary: ["shine", "shine"],
+  snowman: ["bounce", "laugh"],
+  gingerbread: ["bounce", "laugh"],
+};
+const reaction = (k: PieceKey): [Kind, Sound?] => REACT[k] ?? ["bounce", "shimmer"];
+const REACT_SECONDS = 1.2;
+
+/** Plays a tap reaction for REACT_SECONDS after `at` (performance.now() of the tap; 0 = none). */
+function Reaction({ at, kind, height, children }: { at: number; kind: Kind; height: number; children: ReactNode }) {
+  const g = useRef<THREE.Group>(null);
+  useFrame(() => {
+    const o = g.current;
+    if (!o) return;
+    const age = (performance.now() - at) / 1000;
+    const e = at && P.motion.on ? Math.max(0, 1 - age / REACT_SECONDS) : 0; // fades out to rest
+    const s = Math.sin(age * 10);
+    o.rotation.set(kind === "nod" ? Math.max(0, s) * 0.18 * e : 0, 0, kind === "sway" ? s * 0.09 * e : kind === "swing" ? Math.sin(age * 7) * 0.3 * e : 0);
+    o.position.y = kind === "hop" ? Math.abs(Math.sin(age * 9)) * height * 0.18 * e : 0;
+    const q = kind === "bounce" ? Math.sin(age * 12) * 0.12 * e : 0;
+    o.scale.set(1 + q * 0.5, 1 - q, 1 + q * 0.5);
+  });
+  return <group ref={g}>{children}</group>;
+}
+
 /** The arrange-mode wiggle, like icons on a phone home screen, so the child sees the pieces can move now. */
 function Wiggle({
   on,
@@ -375,6 +426,21 @@ export function VillageScene({
     return layout[key] ?? [...PIECES[key].spot[k], 0];
   };
 
+  // Tap reactions outside arrange mode. A drag pans the view, so only a tap that barely moved counts.
+  const [poke, setPoke] = useState<{ key: PieceKey; at: number } | null>(null);
+  useEffect(() => {
+    if (!poke) return;
+    const t = setTimeout(() => setPoke(null), REACT_SECONDS * 1000);
+    return () => clearTimeout(t);
+  }, [poke]);
+  const tap = (key: PieceKey) => (e: ThreeEvent<MouseEvent>) => {
+    if (arranging || e.delta > 8) return;
+    e.stopPropagation();
+    setPoke({ key, at: performance.now() });
+    const sound = reaction(key)[1];
+    if (sound) play(sound);
+  };
+
   const down = (hit: PieceKey) => (e: ThreeEvent<PointerEvent>) => {
     if (!arranging) return; // outside arrange mode a drag on a piece pans the view like anywhere else
     e.stopPropagation();
@@ -471,6 +537,7 @@ export function VillageScene({
             position={position}
             scale={scale}
             onPointerDown={down(key)}
+            onClick={tap(key)}
             onPointerMissed={sel === key ? () => setSel(null) : undefined}
             onPointerOver={() =>
               arranging && (document.body.style.cursor = "grab")
@@ -489,6 +556,7 @@ export function VillageScene({
                   on={arranging && drag?.key !== key}
                   phase={pieces.indexOf(key) * 1.7}
                 >
+                  <Reaction at={poke?.key === key ? poke.at : 0} kind={reaction(key)[0]} height={piece.height}>
                   <Turn turn={turn}>
                     {piece.glb ? (
                       // Its own loading boundary: a new treasure loading must not hide (and tear down) the whole scene.
@@ -499,6 +567,21 @@ export function VillageScene({
                       <Fit height={piece.height}>{STAND_INS[key]}</Fit>
                     )}
                   </Turn>
+                  </Reaction>
+                  {poke?.key === key && (reaction(key)[0] === "flame" || reaction(key)[0] === "shine") && (
+                    // The flame flares up (on top of its night glow), or a gold shine with sparkles.
+                    <>
+                      <P.NightFlame
+                        y={(FLAMES[key]?.y ?? 0.6) * piece.height}
+                        size={(FLAMES[key]?.size ?? 1.6) * piece.height}
+                        power={FLAMES[key]?.power ?? 10}
+                        color={FLAMES[key]?.color ?? "#ffe6a8"}
+                      />
+                      {reaction(key)[0] === "shine" && P.motion.on && (
+                        <Sparkles count={24} scale={[piece.height * 1.4, piece.height * 1.6, piece.height * 1.4]} position={[0, piece.height * 0.7, 0]} size={6} speed={0.8} color="#ffe6a8" />
+                      )}
+                    </>
+                  )}
                   {night && FLAMES[key] && (
                     <P.NightFlame
                       y={FLAMES[key].y * piece.height}

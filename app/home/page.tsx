@@ -7,11 +7,11 @@ import { LangToggle } from "@/components/LangToggle";
 import { TreasureArt } from "@/components/TreasureArt";
 import { missions } from "@/content/missions";
 import { type FullProgress, getParish, loadProgress, setChildLang } from "@/lib/data";
-import { DAYS, todayDay } from "@/lib/game/unlock";
+import { REAL_DAYS, TRIAL_DAYS, isTrial, shownDay, todayDay } from "@/lib/game/unlock";
 import { STEPS, XP, balance, currentStreak, type Step } from "@/lib/game/xp";
 import { useT } from "@/lib/i18n";
 import { asset } from "@/lib/asset";
-import { avatars, parch, pill, tag } from "@/lib/ui";
+import { avatars, parch, pill, redBtn, tag } from "@/lib/ui";
 import { useChild } from "@/lib/useChild";
 import { PIECES, rewardForDay } from "@/lib/village/layout";
 
@@ -31,6 +31,22 @@ export default function Home() {
   const ctx = useChild();
   const [prog, setProg] = useState<FullProgress | null>(null);
   const [parish, setParish] = useState<string | null>(null);
+  // The 1 December welcome, once per device: trial days are over and XP has started again from 0.
+  const [welcome, setWelcome] = useState(false);
+  const welcomeKey = ctx && `welcome-${ctx.campaign.start}`;
+  useEffect(() => {
+    if (!ctx || todayDay(ctx.campaign) <= TRIAL_DAYS) return;
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is only readable after mount
+      if (!localStorage.getItem(welcomeKey!)) setWelcome(true);
+    } catch {}
+  }, [ctx, welcomeKey]);
+  const closeWelcome = () => {
+    setWelcome(false);
+    try {
+      localStorage.setItem(welcomeKey!, "1");
+    } catch {}
+  };
   useEffect(() => {
     if (ctx) loadProgress(ctx.child).then(setProg, () => {});
   }, [ctx]);
@@ -45,19 +61,20 @@ export default function Home() {
   const mission = missions.find((m) => m.day === today);
   const m = mission?.[lang];
   const reward = mission && rewardForDay(mission.day);
-  const daysDone = child.days.length;
+  const daysDone = child.days.filter((d) => !isTrial(d)).length; // trial days are practice: the journey counts 25
   const has = (s: Step) => !!prog && { read: prog.readDays, mass: prog.massDays, task: prog.taskDays, story: prog.storyDays }[s].includes(today);
   const date = new Intl.DateTimeFormat(lang === "ml" ? "ml-IN" : "en-IN", { day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(campaign.start));
 
   const line = (s: Step) => (!m ? "" : s === "read" ? `${m.ref} · ${m.verse}` : s === "mass" ? m.massPrayer : s === "task" ? m.task : m.story.title);
 
   return (
-    <main className="day-bg flex min-h-dvh flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] text-ink landscape:bg-fixed">
+    <main className="day-bg flex min-h-dvh flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] text-ink">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4">
         <header className="flex items-center gap-3">
+          {/* The avatar opens "Who is playing?": switch child, or add one. */}
           <Link
-            href="/home"
-            aria-label={t.dashboard}
+            href="/children"
+            aria-label={t.whoPlays}
             className="flex size-16 shrink-0 items-center justify-center rounded-full border-4 border-[#f5c542] bg-gradient-to-b from-parchment to-parchment-2 text-4xl shadow-lg"
           >
             <span aria-hidden>{avatars[child.avatar_key] ?? "🐑"}</span>
@@ -71,7 +88,7 @@ export default function Home() {
           {today > 0 && (
             <p className="inline-flex min-h-10 shrink-0 items-center gap-1 rounded-full border-[3px] border-[#f5c542] bg-gradient-to-b from-[#d8333a] to-crimson-dark px-2.5 font-display text-sm font-black whitespace-nowrap text-white shadow-md">
               <ListIcon width={20} height={20} className="text-[#f5c542]" />
-              {t.day} {String(today).padStart(2, "0")} / {DAYS}
+              {isTrial(today) ? `${t.trial} ${today} / ${TRIAL_DAYS}` : `${t.day} ${String(shownDay(today)).padStart(2, "0")} / ${REAL_DAYS}`}
             </p>
           )}
         </header>
@@ -79,6 +96,12 @@ export default function Home() {
         <div className="-mt-2 flex justify-end">
           <LangToggle className="min-h-9 text-xs" onChange={(l) => setChildLang(child.id, l).catch(() => {})} />
         </div>
+
+        {isTrial(today) && (
+          <p role="note" className={`${parch} px-4 py-3 text-center font-semibold text-crimson-dark`}>
+            ⏳ {t.trialNote.replace("{n}", String(today))}
+          </p>
+        )}
 
         <Ribbon
           title={t.dailyActivities}
@@ -90,24 +113,24 @@ export default function Home() {
         />
 
         {/* Journey progress */}
-        <section className={`${parch} flex items-center gap-3 px-4 py-3`} aria-label={`${t.journeyProgress}: ${daysDone} / ${DAYS}`}>
+        <section className={`${parch} flex items-center gap-3 px-4 py-3`} aria-label={`${t.journeyProgress}: ${daysDone} / ${REAL_DAYS}`}>
           {/* eslint-disable-next-line @next/next/no-img-element -- small local art */}
           <img src={asset("/treasures/manger.webp")} alt="" width={60} height={60} className="shrink-0 drop-shadow-[0_0_10px_rgba(255,214,90,0.8)]" />
           <div className="flex min-w-0 flex-1 flex-col gap-1.5">
             <p className="flex items-center justify-between gap-2 font-display font-bold text-ink">
               {t.journeyProgress}
               <span className="shrink-0 rounded-full border-2 border-[#e4cfa4] bg-white/80 px-2 text-sm">
-                {daysDone} / {DAYS} {t.days}
+                {daysDone} / {REAL_DAYS} {t.days}
               </span>
             </p>
             <div className="h-3.5 overflow-hidden rounded-full bg-[#d9cbb0] shadow-inner">
-              <div className="h-full rounded-full bg-gradient-to-b from-[#ffd75e] to-[#e0a21a]" style={{ width: `${Math.max((daysDone / DAYS) * 100, 3)}%` }} />
+              <div className="h-full rounded-full bg-gradient-to-b from-[#ffd75e] to-[#e0a21a]" style={{ width: `${Math.max((daysDone / REAL_DAYS) * 100, 3)}%` }} />
             </div>
             {prog && (
               <p className="flex flex-wrap gap-2 text-sm font-bold">
                 <XpPill xp={balance(prog)} className="min-h-7 text-sm" />
                 <span className="inline-flex min-h-7 items-center rounded-full border-[3px] border-[#f5c542] bg-white/80 px-2">
-                  🔥 {currentStreak(prog.onTimeDays, today)} {t.streak}
+                  🔥 {currentStreak(prog.onTimeDays.filter((d) => d >= (prog.xpFrom ?? 1)), today)} {t.streak}
                 </span>
               </p>
             )}
@@ -196,6 +219,19 @@ export default function Home() {
 
         <TabBar current="home" />
       </div>
+      {welcome && (
+        <div role="dialog" aria-modal="true" aria-labelledby="welcome-title" className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4">
+          <section className={`${parch} flex w-full max-w-sm flex-col items-center gap-3 p-6 text-center animate-[rise_.5s_ease-out] motion-reduce:animate-none`}>
+            {/* eslint-disable-next-line @next/next/no-img-element -- small local art */}
+            <img src={asset("/treasures/star.webp")} alt="" width={72} height={72} className="drop-shadow-[0_0_14px_rgba(255,214,90,0.9)]" />
+            <h2 id="welcome-title" className="font-display text-3xl font-black text-crimson-dark">{t.welcomeTitle}</h2>
+            <p className="leading-relaxed">{t.welcomeBody}</p>
+            <button type="button" autoFocus className={`${redBtn} w-full`} onClick={closeWelcome}>
+              {t.welcomeGo}
+            </button>
+          </section>
+        </div>
+      )}
     </main>
   );
 }

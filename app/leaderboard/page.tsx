@@ -54,7 +54,7 @@ export default function Leaderboard() {
   const podium = others.slice(0, 3);
 
   return (
-    <main className="day-bg flex min-h-dvh flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] text-ink landscape:bg-fixed">
+    <main className="day-bg flex min-h-dvh flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] text-ink">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4">
         <header className="relative">
           <Link href="/home" aria-label={t.back} className={`${roundBtn} absolute top-1 left-0 z-30`}>

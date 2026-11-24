@@ -11,6 +11,7 @@ import type { MapControls as MapControlsImpl } from "three-stdlib";
 import type { OrnamentKind, TreeState } from "@/lib/tree";
 import { TREE_TOP } from "@/lib/tree";
 import { PAINTINGS, PIECES, type PaintingKey, type PieceKey, type Spot, type VillageLayout } from "@/lib/village/layout";
+import { loop, stopLoop } from "@/lib/sound";
 import * as P from "./parts";
 import { ChristmasTree } from "./Tree";
 import { Model, VillageScene } from "./VillageScene";
@@ -294,6 +295,9 @@ export default function World(rest: Omit<Props, "night">) {
   useEffect(() => {
     P.motion.on = !reducedMotion;
   }, [reducedMotion]);
+  // A soft music loop while the village is open: its own tune by day and by night.
+  useEffect(() => loop(night ? "village-night" : "village-day"), [night]);
+  useEffect(() => stopLoop, []);
 
   return (
     <Canvas

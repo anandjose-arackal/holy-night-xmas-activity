@@ -56,16 +56,26 @@ body {
   }
 }
 
-/* Sunny hillside behind the day screens: tall art on phones, wide art on laptops; a gradient until the art loads. */
-.day-bg {
+/* Day screens: a deep red Christmas backdrop drawn in CSS, with a wreath in each top corner and baubles on strings.
+   It sits on a fixed layer the size of the screen, so it never rescales with the page's height (no jump between
+   pages; background-attachment: fixed is ignored on iOS). Falling snow and frost come from components/Frost.tsx.
+   No `isolation` here: page dialogs (z-50) must rise above the frost canvas (z-40); z-index -1 still paints over the
+   body's colour, which belongs to the canvas below everything. */
+.day-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background:
-    url(/bg/tall.webp) center bottom / cover no-repeat,
-    linear-gradient(#2f86e8 0%, #8cc8f5 42%, #8cc957 43%, #4f9a2f 100%);
-}
-@media (orientation: landscape) {
-  .day-bg {
-    background-image: url(/bg/wide.webp), linear-gradient(#2f86e8 0%, #8cc8f5 42%, #8cc957 43%, #4f9a2f 100%);
-  }
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='33' fill='none' stroke='%23164a26' stroke-width='18'/><circle cx='50' cy='50' r='33' fill='none' stroke='%232f7a3b' stroke-width='10' stroke-dasharray='5 4'/><circle cx='50' cy='50' r='33' fill='none' stroke='%234cb84f' stroke-width='3' stroke-dasharray='2 9' opacity='.7'/><g fill='%23e0464c'><circle cx='24' cy='34' r='3.5'/><circle cx='29' cy='29' r='3'/><circle cx='76' cy='34' r='3.5'/><circle cx='71' cy='29' r='3'/><circle cx='50' cy='17' r='3.5'/><circle cx='20' cy='60' r='3'/><circle cx='80' cy='60' r='3'/></g><g fill='%23f5c542' stroke='%23b8860b' stroke-width='1'><path d='M50 80 L34 72 L36 90 Z'/><path d='M50 80 L66 72 L64 90 Z'/><path d='M50 80 L44 98 L48 98 Z'/><path d='M50 80 L56 98 L52 98 Z'/><circle cx='50' cy='80' r='5'/></g></svg>") left -34px top -34px / 120px no-repeat,
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='33' fill='none' stroke='%23164a26' stroke-width='18'/><circle cx='50' cy='50' r='33' fill='none' stroke='%232f7a3b' stroke-width='10' stroke-dasharray='5 4'/><circle cx='50' cy='50' r='33' fill='none' stroke='%234cb84f' stroke-width='3' stroke-dasharray='2 9' opacity='.7'/><g fill='%23e0464c'><circle cx='24' cy='34' r='3.5'/><circle cx='29' cy='29' r='3'/><circle cx='76' cy='34' r='3.5'/><circle cx='71' cy='29' r='3'/><circle cx='50' cy='17' r='3.5'/><circle cx='20' cy='60' r='3'/><circle cx='80' cy='60' r='3'/></g><g fill='%23f5c542' stroke='%23b8860b' stroke-width='1'><path d='M50 80 L34 72 L36 90 Z'/><path d='M50 80 L66 72 L64 90 Z'/><path d='M50 80 L44 98 L48 98 Z'/><path d='M50 80 L56 98 L52 98 Z'/><circle cx='50' cy='80' r='5'/></g></svg>") right -34px top -34px / 120px no-repeat,
+    /* Baubles: a row 88px from the top, so they hang just above the home ribbon on any width (strings stretch to it). */
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 40'><g stroke='%23fff3c4' stroke-opacity='.5' stroke-width='1'><circle cx='40' cy='20' r='12' fill='%23f5c542'/><circle cx='120' cy='26' r='10' fill='%232f7a3b'/><circle cx='200' cy='20' r='14' fill='%23f5c542'/><circle cx='280' cy='26' r='11' fill='%23e9cf98'/><circle cx='360' cy='20' r='12' fill='%232f7a3b'/></g><g fill='%23fff' opacity='.55'><circle cx='36' cy='15' r='3.0'/><circle cx='116' cy='21' r='2.5'/><circle cx='196' cy='15' r='3.5'/><circle cx='276' cy='21' r='2.8'/><circle cx='356' cy='15' r='3.0'/></g><g fill='%23b8860b'><rect x='36' y='4' width='8' height='5' rx='1'/><rect x='116' y='12' width='8' height='5' rx='1'/><rect x='196' y='2' width='8' height='5' rx='1'/><rect x='276' y='11' width='8' height='5' rx='1'/><rect x='356' y='4' width='8' height='5' rx='1'/></g></svg>") center top 88px / min(92%, 400px) auto no-repeat,
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 128' preserveAspectRatio='none'><path d='M40 0V102M120 0V109M200 0V101M280 0V109M360 0V102' stroke='%23f5c542' stroke-width='1.2' opacity='.8' vector-effect='non-scaling-stroke'/></svg>") center top / min(92%, 400px) 128px no-repeat,
+    radial-gradient(ellipse 120% 60% at 50% 0%, rgba(255, 196, 110, 0.22), transparent 70%),
+    radial-gradient(ellipse 90% 50% at 50% 100%, rgba(0, 0, 0, 0.35), transparent 70%),
+    linear-gradient(#b3202a 0%, #8a1520 45%, #5a0c14 100%);
 }
 
 @keyframes rise {

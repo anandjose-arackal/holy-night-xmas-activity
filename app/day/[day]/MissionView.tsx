@@ -15,13 +15,14 @@ import { VerseQuiz } from "@/components/VerseQuiz";
 import { ClampText } from "@/components/ClampText";
 import { makeQuiz } from "@/lib/quiz";
 import { completeMission, completePrayer, completeStep, type FullProgress, loadProgress } from "@/lib/data";
-import { isOpen } from "@/lib/game/unlock";
+import { dayLabel, isOpen } from "@/lib/game/unlock";
 import { MASS_HOME, XP, type Step } from "@/lib/game/xp";
 import { prayXp } from "@/lib/voice/accumulator";
 import { parseRef, readChapter } from "@/lib/bible";
 import { GOSPEL } from "@/content/readings";
 import { useT } from "@/lib/i18n";
 import { asset } from "@/lib/asset";
+import { play } from "@/lib/sound";
 import { parch, pill, redBtn, tag } from "@/lib/ui";
 import { useChild } from "@/lib/useChild";
 import { PIECES, TREE_NAMES, rewardForDay } from "@/lib/village/layout";
@@ -30,7 +31,7 @@ const STEP_ORDER: Step[] = ["read", "mass", "task"];
 const VOICE = process.env.NEXT_PUBLIC_VOICE !== "0"; // Pray now; set NEXT_PUBLIC_VOICE=0 to hide it
 
 const shell =
-  "day-bg flex min-h-dvh flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] text-ink landscape:bg-fixed";
+  "day-bg flex min-h-dvh flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] text-ink";
 const ghostBtn =
   `${pill} disabled:opacity-50`;
 const secondBtn =
@@ -171,8 +172,15 @@ export function MissionView({ mission }: { mission: Mission }) {
       setProg((p) => p && { ...p, [key]: [...p[key], day], massXp: step === "mass" ? { ...p.massXp, [day]: gained } : p.massXp });
       xpPop.pop(`+${gained} XP`);
       if (step === "read" || step === "mass") go(STEP_ORDER.indexOf(step) + 1);
-      if (step === "task") setScene("unlock");
-      if (step === "story" && !done("task")) router.push("/home"); // after the task, stay: the village button shows
+      // After the task: the day's story, then the treasure unlock as the reward at the end.
+      if (step === "task") {
+        setScene(done("story") ? "unlock" : "story");
+        play("task");
+      }
+      if (step === "story") {
+        if (done("task")) setScene("unlock");
+        else router.push("/home");
+      }
     } catch {
       setError(true);
     }
@@ -203,6 +211,7 @@ export function MissionView({ mission }: { mission: Mission }) {
     const xp = await completePrayer(child.id, day, prayers!, secs);
     setProg((p) => p && { ...p, prayXp: { ...p.prayXp, [day]: xp }, prayVoiceDays: secs == null ? p.prayVoiceDays : [...p.prayVoiceDays, day] });
     const base = prayXp(prayers!, false);
+    play("prayer");
     if (before == null) xpPop.pop(`+${base} XP`);
     if (secs != null && xp > base) xpPop.pop(`+${xp - base} XP · ${t.prayVoiceBonus}`, before == null ? 500 : 0);
   }
@@ -214,10 +223,10 @@ export function MissionView({ mission }: { mission: Mission }) {
 
         <header className={`${parch} relative mt-4 flex flex-col items-center gap-1 px-5 pt-8 pb-5 text-center`}>
           <p className={tag}>
-            {t.day} {day}
+            {dayLabel(day, t)}
           </p>
           <h1 className="font-display text-3xl leading-tight font-black text-crimson-dark">{m.title}</h1>
-          <p className="font-display text-ink-soft italic">{m.ref}</p>
+          <p className="font-display text-ink-soft">{m.ref}</p>
           <ol className="mt-2 flex gap-2" aria-label={t.activities}>
             {STEP_ORDER.map((s, i) => (
               <li key={s}>
@@ -273,7 +282,7 @@ export function MissionView({ mission }: { mission: Mission }) {
                         )}
                       </div>
                     )}
-                    <ClampText lines={5}><blockquote className="font-display text-lg leading-relaxed italic">“{m.verse}”</blockquote></ClampText>
+                    <ClampText lines={5}><blockquote className="font-display text-lg leading-relaxed">“{m.verse}”</blockquote></ClampText>
                     <div className="flex items-center justify-between gap-2">
                       {bibleAt ? (
                         <Link
@@ -300,7 +309,7 @@ export function MissionView({ mission }: { mission: Mission }) {
                     )}
                   </Part>,
             <Part key="mass" icon={<HeartIcon width={22} height={22} />} title={`2. ${t.stepMass}`} done={done("mass")}>
-                    <p className="font-display leading-relaxed italic">{m.massPrayer}</p>
+                    <p className="font-display leading-relaxed">{m.massPrayer}</p>
                     <p className="text-sm text-ink-soft">{t.massNote}</p>
                     {done("mass") ? (
                       <Done label={`+${massXp} XP`} />
@@ -317,7 +326,7 @@ export function MissionView({ mission }: { mission: Mission }) {
                   </Part>,
             <Part key="task" icon={<StarIcon width={22} height={22} />} title={`3. ${t.stepTask}`} done={done("task")}>
                     <p className="text-lg leading-relaxed">{m.task}</p>
-                    <p className="font-display leading-relaxed italic">{m.prayer}</p>
+                    <p className="font-display leading-relaxed">{m.prayer}</p>
                     {prayers &&
                       (prayedVoice ? (
                         <Done label={`${t.prayDone} · +${prog.prayXp[day]} XP`} />
@@ -377,7 +386,7 @@ export function MissionView({ mission }: { mission: Mission }) {
       {scene === "unlock" && (
         <section
           role="dialog"
-          aria-label={`${t.day} ${day} ${t.completeBang}`}
+          aria-label={`${dayLabel(day, t)} ${t.completeBang}`}
           className="day-bg fixed inset-0 z-50 overflow-y-auto px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] text-center animate-[rise_.5s_ease-out] motion-reduce:animate-none"
         >
           <div className="mx-auto flex w-full max-w-md flex-col items-center">
@@ -386,7 +395,7 @@ export function MissionView({ mission }: { mission: Mission }) {
               <CheckIcon width={34} height={34} strokeWidth={3.5} />
             </span>
             <div className="-mt-1 w-full">
-              <Ribbon title={`${t.day} ${String(day).padStart(2, "0")} ${t.completeBang}`} />
+              <Ribbon title={`${dayLabel(day, t)} ${t.completeBang}`} />
             </div>
             <p className="relative z-10 mt-3 flex items-center gap-2 rounded-full border-[3px] border-rim bg-gradient-to-b from-parchment to-parchment-2 py-1 pr-5 pl-2 font-display text-xl font-black text-crimson-dark shadow-md">
               {/* eslint-disable-next-line @next/next/no-img-element -- small local art */}
@@ -412,19 +421,19 @@ export function MissionView({ mission }: { mission: Mission }) {
               </h2>
               <h3 className="font-display text-2xl leading-tight font-black text-crimson-dark">{m.title}</h3>
               <p className="text-lg leading-snug">{piece.desc[lang]}</p>
-              <blockquote className="w-full rounded-xl border-2 border-[#e2c58a] bg-gradient-to-b from-[#fbecc8] to-[#f1d9a4] px-4 py-3 font-display text-lg leading-snug font-bold text-crimson-dark italic shadow-[inset_0_2px_6px_rgba(120,70,10,0.18)]">
+              <blockquote className="w-full rounded-xl border-2 border-[#e2c58a] bg-gradient-to-b from-[#fbecc8] to-[#f1d9a4] px-4 py-3 font-display text-lg leading-snug font-bold text-crimson-dark shadow-[inset_0_2px_6px_rgba(120,70,10,0.18)]">
                 <ClampText lines={4}>“{m.verse}”</ClampText>
-                <span className="mt-1 block text-base font-semibold text-ink not-italic">— {m.ref}</span>
+                <span className="mt-1 block text-base font-semibold text-ink">— {m.ref}</span>
               </blockquote>
               <p className="flex items-center gap-2 rounded-full border-[3px] border-[#f5c542] bg-gradient-to-b from-[#d8333a] to-crimson-dark py-1 pr-6 pl-2 font-display text-2xl font-black text-white shadow-lg">
                 {/* eslint-disable-next-line @next/next/no-img-element -- small local art */}
                 <img src={asset("/treasures/star.webp")} alt="" width={40} height={40} className="-my-2" />+{dayXp} XP
               </p>
-              {/* The story first; the village waits at the end of it, so the story is not skipped on the way. */}
-              <button type="button" className={`${redBtn} w-full`} onClick={() => setScene("story")}>
-                <BookIcon width={24} height={24} className="text-[#f5c542]" /> {t.nextStory} <Chevron width={22} height={22} strokeWidth={3} />
+              {/* The last scene of the day (after the story): the treasure goes into the village. */}
+              {villageBtn(redBtn)}
+              <button type="button" className={secondBtn} onClick={() => router.push("/home")}>
+                {t.continueJourney} <Chevron width={22} height={22} strokeWidth={3} />
               </button>
-              {villageBtn(secondBtn)}
             </div>
           </div>
         </section>
@@ -456,11 +465,17 @@ export function MissionView({ mission }: { mission: Mission }) {
             </article>
             {done("story") ? (
               <>
-                {/* After the task, the treasure goes into the village here; before it, back to the journey. */}
-                {done("task") && villageBtn(redBtn)}
-                <button type="button" className={done("task") ? secondBtn : redBtn} onClick={() => router.push("/home")}>
-                  {t.continueJourney} <Chevron width={22} height={22} strokeWidth={3} />
-                </button>
+                {/* After the task, the treasure unlock comes next; before it, back to the journey. */}
+                {done("task") ? (
+                  <button type="button" className={redBtn} onClick={() => setScene("unlock")}>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- small local art */}
+                    <img src={asset("/treasures/gold.webp")} alt="" width={32} height={32} className="-my-2" /> {t.newTreasure}
+                  </button>
+                ) : (
+                  <button type="button" className={redBtn} onClick={() => router.push("/home")}>
+                    {t.continueJourney} <Chevron width={22} height={22} strokeWidth={3} />
+                  </button>
+                )}
               </>
             ) : (
               <button type="button" className={redBtn} disabled={!!busy} onClick={() => finish("story")}>

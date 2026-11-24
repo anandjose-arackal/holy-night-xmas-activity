@@ -22,7 +22,9 @@ child's village, a painting they arrange by dragging. On Christmas Day the Holy 
 | Christmas tree and ornament placement | `components/world/Tree.tsx` |
 | The world screen: panels, decorating, saving | `app/play/page.tsx` |
 | Colour tokens | `app/globals.css` |
-| Village and day-screen paintings (tall for phones, wide for laptops) | `public/bg/tall.webp`, `public/bg/wide.webp` |
+| Village paintings (tall for phones, wide for laptops; day and night) | `public/bg/village-*.webp` |
+| Day-screen backdrop (red gradient, wreaths, baubles) and snow/frost | `app/globals.css` (`.day-bg`), `components/Frost.tsx` |
+| Sounds | `public/sounds/*.mp3`, `lib/sound.ts` |
 | Shrinking a model; cutting a land tile's painted sky; making its height map | `scripts/simplify-glb.mjs` |
 | Look at one model on its own | `/models?m=santa` |
 

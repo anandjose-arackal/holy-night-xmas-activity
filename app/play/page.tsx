@@ -9,7 +9,7 @@ import { OrnamentIcon } from "@/components/world/OrnamentIcon";
 import type { Pickable, Quality, View, WorldApi } from "@/components/world/World";
 import { missions } from "@/content/missions";
 import { type FullProgress, loadProgress, loadTree, saveTree, saveVillage, setChildLang } from "@/lib/data";
-import { DAYS, isChristmas, isChristmasEve, openDate, todayDay } from "@/lib/game/unlock";
+import { REAL_DAYS, dayLabel, isChristmas, isChristmasEve, isTrial, openDate, todayDay } from "@/lib/game/unlock";
 import { balance, massGifts } from "@/lib/game/xp";
 import { useT } from "@/lib/i18n";
 import {
@@ -25,7 +25,8 @@ import {
   type TreeState,
 } from "@/lib/tree";
 import { pill, redBtn } from "@/lib/ui";
-import { CloseIcon, HomeIcon, PencilIcon, XpPill, roundBtn } from "@/components/day";
+import { CloseIcon, HomeIcon, PencilIcon, SpeakerIcon, XpPill, roundBtn } from "@/components/day";
+import { setMuted, useMuted } from "@/lib/sound";
 import { useChild } from "@/lib/useChild";
 import {
   PIECES,
@@ -74,6 +75,7 @@ function Sheet({ title, onClose, closeLabel, children }: { title: string; onClos
 
 export default function Play() {
   const { t, lang } = useT();
+  const muted = useMuted();
   const ctx = useChild();
   const [ready, setReady] = useState(false); // every village file loaded
   const api = useRef<WorldApi>({ pick: () => -1 });
@@ -334,11 +336,14 @@ export default function Play() {
             {/* truncate on the flex pill itself clips both ends; the inner span gets a proper ellipsis */}
             <span className="truncate">{child.nickname}</span>
           </Link>
-          <p className={`${pill} px-3 text-sm`} aria-label={`${t.completed}: ${days.length}/${DAYS}`}>
-            ★ {days.length}/{DAYS}
+          <p className={`${pill} px-3 text-sm`} aria-label={`${t.completed}: ${days.filter((d) => !isTrial(d)).length}/${REAL_DAYS}`}>
+            ★ {days.filter((d) => !isTrial(d)).length}/{REAL_DAYS}
           </p>
           <XpPill xp={balance(prog)} className="self-center text-sm" />
           <LangToggle className="px-2 text-xs" onChange={(l) => setChildLang(child.id, l).catch(() => {})} />
+          <button type="button" aria-label={t.sound} aria-pressed={!muted} className={`${roundBtn} size-11!`} onClick={() => setMuted(!muted)}>
+            <SpeakerIcon off={muted} width={22} height={22} strokeWidth={2.5} />
+          </button>
         </header>
         {villageError && (
           <p role="alert" className="pointer-events-auto absolute top-[calc(3.5rem+env(safe-area-inset-top))] left-1/2 -translate-x-1/2 rounded-full bg-crimson px-4 py-1 text-sm font-semibold whitespace-nowrap text-white shadow">
@@ -442,11 +447,11 @@ export default function Play() {
                       <span className="text-sm text-ink-soft">{t.waitsForChristmas}</span>
                     ) : day <= today ? (
                       <Link href={`/day/${day}`} className="min-h-11 content-center text-sm underline">
-                        {t.day} {day}
+                        {dayLabel(day, t)}
                       </Link>
                     ) : (
                       <span className="text-sm text-ink-soft">
-                        {t.day} {day} · {dateLabel(openDate(day, campaign))}
+                        {dayLabel(day, t)} · {dateLabel(openDate(day, campaign))}
                       </span>
                     ))}
                 </li>
@@ -467,7 +472,7 @@ export default function Play() {
               <p className="text-lg font-semibold">{latest[lang].ref}</p>
               <p>{latest[lang].reflection}</p>
               <Link href={`/day/${latest.day}`} className={redBtn}>
-                {t.openDay} {latest.day}
+                {t.openDay}: {dayLabel(latest.day, t)}
               </Link>
             </>
           )}

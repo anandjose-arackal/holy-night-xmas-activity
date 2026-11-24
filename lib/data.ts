@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Lang } from "@/content/missions";
-import { type Campaign, DEFAULT_CAMPAIGN, isOpen, localDate, now, openDate, todayDay } from "@/lib/game/unlock";
+import { type Campaign, DEFAULT_CAMPAIGN, isOpen, TRIAL_DAYS, localDate, now, openDate, todayDay, xpFromDay } from "@/lib/game/unlock";
 import { MASS_HOME, SHARES_A_DAY, SHARE_XP, XP, canBuy, earned, type Progress, type Step } from "@/lib/game/xp";
 import type { PrayerSet } from "@/content/prayers";
 import { hasBig, prayXp, repsOf } from "@/lib/voice/accumulator";
@@ -194,6 +194,7 @@ const onTime = (day: number, at: string | undefined, c: Campaign) => !!at && loc
 
 export async function loadProgress(child: Child): Promise<FullProgress> {
   const c = await getCampaign();
+  const xpFrom = xpFromDay(todayDay(c)); // trial-day XP stops counting on 1 December
   if (!supabase) {
     const p = readProgress(child.id);
     return {
@@ -206,9 +207,10 @@ export async function loadProgress(child: Child): Promise<FullProgress> {
       massXp: p.massXp,
       prayXp: p.prayXp,
       prayVoiceDays: p.prayVoice,
-      shareXp: Object.values(p.shares).reduce((n, x) => n + x, 0) * SHARE_XP,
+      shareXp: Object.entries(p.shares).reduce((n, [d, x]) => n + (+d >= xpFrom ? x : 0), 0) * SHARE_XP,
       bonus: p.bonus,
       layout: p.layout,
+      xpFrom,
     };
   }
   const by = <T,>(q: PromiseLike<{ data: T[] | null; error: unknown }>) =>
@@ -234,9 +236,10 @@ export async function loadProgress(child: Child): Promise<FullProgress> {
     massXp: xpOf("mass"),
     prayXp: xpOf("pray"),
     prayVoiceDays: steps.filter((x) => x.step === "pray" && x.speech_seconds != null).map((x) => x.day),
-    shareXp: steps.filter((x) => x.step.startsWith("share")).reduce((n, x) => n + (x.xp ?? 0), 0),
+    shareXp: steps.filter((x) => x.step.startsWith("share") && x.day >= xpFrom).reduce((n, x) => n + (x.xp ?? 0), 0),
     bonus: bonus.map((b) => b.item),
     layout: layout[0]?.data ?? null,
+    xpFrom,
   };
 }
 
@@ -292,6 +295,7 @@ export async function recordShare(id: string): Promise<number> {
 /** The database re-counts the child's XP before it allows a purchase. */
 export async function buyBonus(child: Child, item: BonusKey) {
   if (!supabase) {
+    if (todayDay(DEFAULT_CAMPAIGN) <= TRIAL_DAYS) throw new Error("shop opens on 1 December");
     const p = await loadProgress(child);
     if (!canBuy(p, item)) throw new Error("not enough XP");
     const local = readProgress(child.id);
