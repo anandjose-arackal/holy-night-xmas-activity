@@ -1,4 +1,4 @@
-// Shared pieces of the day screens (sign-in, home, who is playing): title, divider, icons, bottom tab bar.
+// Shared pieces of the day screens (sign-in, home, who is taking part): title, divider, icons, bottom tab bar.
 
 import Link from "next/link";
 import type { ReactNode, SVGProps } from "react";

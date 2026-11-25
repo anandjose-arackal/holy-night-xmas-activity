@@ -314,11 +314,12 @@ export function MissionView({ mission }: { mission: Mission }) {
                     {done("mass") ? (
                       <Done label={`+${massXp} XP`} />
                     ) : (
-                      <div className="flex flex-wrap gap-2">
-                        <button type="button" className={ghostBtn} disabled={!!busy} onClick={() => finish("mass", true)}>
+                      // Stacked full width, text may wrap: in Malayalam the church button ran off the card.
+                      <div className="flex flex-col gap-2">
+                        <button type="button" className={`${ghostBtn} py-2 text-center whitespace-normal!`} disabled={!!busy} onClick={() => finish("mass", true)}>
                           {t.massWent} · +{XP.mass} XP
                         </button>
-                        <button type="button" className={ghostBtn} disabled={!!busy} onClick={() => finish("mass", false)}>
+                        <button type="button" className={`${ghostBtn} py-2 text-center whitespace-normal!`} disabled={!!busy} onClick={() => finish("mass", false)}>
                           {t.massHome} · +{MASS_HOME} XP
                         </button>
                       </div>
@@ -357,7 +358,8 @@ export function MissionView({ mission }: { mission: Mission }) {
         )}
 
         {/* One step at a time: back, and skip (not done yet) or next (done). The task's next is the story. */}
-        <nav className="sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-10 mt-auto flex items-center gap-2 py-2">
+        {/* Not sticky: pinned to the bottom it covered the step's own buttons ("I did it") until the page was scrolled. */}
+        <nav className="mt-auto flex items-center gap-2 py-2">
           {at > 0 && (
             <button type="button" aria-label={t.back} className={roundBtn} onClick={() => go(at - 1)}>
               <BackIcon width={24} height={24} strokeWidth={3} />

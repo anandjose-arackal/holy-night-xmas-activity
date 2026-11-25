@@ -67,10 +67,11 @@ test("29-30 November are trial days; 1 December is Day 1 and XP counts from it",
   const { isTrial, shownDay, xpFromDay, dayLabel, REAL_DAYS } = await import("./unlock.ts");
   assert.equal(isTrial(todayDay(c, d("2026-11-30"))), true);
   assert.equal(isTrial(todayDay(c, d("2026-12-01"))), false);
+  assert.equal(shownDay(1), "T1");
   assert.equal(shownDay(3), 1);
   assert.equal(shownDay(27), REAL_DAYS);
-  assert.equal(dayLabel(2, { trial: "Trial", day: "Day" }), "Trial 2");
-  assert.equal(dayLabel(3, { trial: "Trial", day: "Day" }), "Day 1");
+  assert.equal(dayLabel(2, { day: "Day" }), "Day T2");
+  assert.equal(dayLabel(3, { day: "Day" }), "Day 1");
   assert.equal(xpFromDay(2), 1);
   assert.equal(xpFromDay(3), 3);
 });

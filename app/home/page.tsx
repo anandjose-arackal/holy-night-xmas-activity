@@ -71,7 +71,7 @@ export default function Home() {
     <main className="day-bg flex min-h-dvh flex-col px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] text-ink">
       <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-4">
         <header className="flex items-center gap-3">
-          {/* The avatar opens "Who is playing?": switch child, or add one. */}
+          {/* The avatar opens "Who is taking part?": switch child, or add one. */}
           <Link
             href="/children"
             aria-label={t.whoPlays}
@@ -88,7 +88,7 @@ export default function Home() {
           {today > 0 && (
             <p className="inline-flex min-h-10 shrink-0 items-center gap-1 rounded-full border-[3px] border-[#f5c542] bg-gradient-to-b from-[#d8333a] to-crimson-dark px-2.5 font-display text-sm font-black whitespace-nowrap text-white shadow-md">
               <ListIcon width={20} height={20} className="text-[#f5c542]" />
-              {isTrial(today) ? `${t.trial} ${today} / ${TRIAL_DAYS}` : `${t.day} ${String(shownDay(today)).padStart(2, "0")} / ${REAL_DAYS}`}
+              {isTrial(today) ? `${t.day} ${shownDay(today)}` : `${t.day} ${String(shownDay(today)).padStart(2, "0")} / ${REAL_DAYS}`}
             </p>
           )}
         </header>

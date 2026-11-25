@@ -23,8 +23,8 @@ export default function Children() {
   const [newParish, setNewParish] = useState<string | null>(null); // the new child's parish, required
   const [needParish, setNeedParish] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [current, setCurrent] = useState<string | null>(null); // the child playing on this device
-  const [switched, setSwitched] = useState<Child | null>(null); // the "Now playing" card shown before Home opens
+  const [current, setCurrent] = useState<string | null>(null); // the child taking part on this device
+  const [switched, setSwitched] = useState<Child | null>(null); // the "Now taking part" card shown before Home opens
   useEffect(() => setCurrent(localStorage.getItem("child")), []); // eslint-disable-line react-hooks/set-state-in-effect -- localStorage is only readable after mount
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function Children() {
     setCurrent(c.id); // the card lights up first, so the switch is seen before the page changes
     setLang(c.lang);
     const known = children?.find((x) => x.id === c.id);
-    if (known && c.id !== current) setSwitched(known); // a switch: say who is playing now
+    if (known && c.id !== current) setSwitched(known); // a switch: say who is taking part now
     setTimeout(() => router.push("/home"), known && c.id !== current ? 1300 : 350);
   }
 
@@ -163,17 +163,16 @@ export default function Children() {
                 {avatars[c.avatar_key] ?? "🐑"}
               </span>
               <span className="flex min-w-0 flex-1 flex-col gap-1">
-                <span className="flex min-w-0 items-center gap-2">
-                  <span className="truncate font-display text-2xl font-black text-crimson-dark">{c.nickname}</span>
-                  {c.id === current && (
-                    <span className="shrink-0 rounded-full bg-[#2f7a3b] px-2 py-0.5 text-xs font-bold text-white">✓ {t.playingNow}</span>
-                  )}
-                </span>
+                <span className="truncate font-display text-2xl font-black text-crimson-dark">{c.nickname}</span>
                 <span className="h-2.5 overflow-hidden rounded-full bg-[#ead6ae]">
                   <span className="block h-full rounded-full bg-gradient-to-b from-[#e0464c] to-crimson-dark" style={{ width: `${Math.max((c.days.filter((d) => !isTrial(d)).length / REAL_DAYS) * 100, 3)}%` }} />
                 </span>
                 <span className="text-sm font-semibold text-ink-soft">
                   {c.days.filter((d) => !isTrial(d)).length}/{REAL_DAYS}
+                {c.id === current && (
+                    // Under the name, not beside it: beside it a long name was cut to "A..".
+                    <span className="ml-2 inline-block rounded-full bg-[#2f7a3b] px-2 py-0.5 text-xs font-bold whitespace-nowrap text-white">✓ {t.playingNow}</span>
+                  )}
                 </span>
               </span>
             </button>

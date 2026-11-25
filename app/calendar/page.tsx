@@ -66,7 +66,7 @@ export default function Calendar() {
               } ${isToday && !done ? "ring-4 ring-[#f5c542] animate-pulse motion-reduce:animate-none" : ""}`;
               const body = (
                 <>
-                  <span className="text-2xl leading-none font-black">{isTrial(m.day) ? `T${m.day}` : shownDay(m.day)}</span>
+                  <span className="text-2xl leading-none font-black">{shownDay(m.day)}</span>
                   {done ? (
                     <CheckIcon width={18} height={18} strokeWidth={3} />
                   ) : open ? (

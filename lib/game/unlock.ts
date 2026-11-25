@@ -8,10 +8,10 @@ export const DAYS = 27; // 29 Nov to Christmas Day
 export const TRIAL_DAYS = 2;
 export const REAL_DAYS = DAYS - TRIAL_DAYS; // 25: 1 December to Christmas Day
 export const isTrial = (day: number) => day >= 1 && day <= TRIAL_DAYS;
-/** The number shown for a day: trial days are Trial 1–2, then 1 December is Day 1. */
-export const shownDay = (day: number) => (isTrial(day) ? day : day - TRIAL_DAYS);
-/** "Trial 2", "Day 1": the name of a day as children see it, from i18n's `trial` and `day`. */
-export const dayLabel = (day: number, t: { trial: string; day: string }) => `${isTrial(day) ? t.trial : t.day} ${shownDay(day)}`;
+/** The number shown for a day: trial days are T1–T2, then 1 December is Day 1. */
+export const shownDay = (day: number) => (isTrial(day) ? `T${day}` : day - TRIAL_DAYS);
+/** "Day T2", "Day 1": the name of a day as children see it, from i18n's `day`. */
+export const dayLabel = (day: number, t: { day: string }) => `${t.day} ${shownDay(day)}`;
 /** The first day whose XP counts: every day during the trial, then only the real days. */
 export const xpFromDay = (today: number) => (today > TRIAL_DAYS ? TRIAL_DAYS + 1 : 1);
 

@@ -48,7 +48,7 @@ export default function Privacy() {
 
       <h2>Your choices</h2>
       <ul>
-        <li>Remove a single child profile at any time from the &quot;Who is playing?&quot; screen.</li>
+        <li>Remove a single child profile at any time from the &quot;Who is taking part?&quot; screen.</li>
         <li>
           &quot;Delete my account and all data&quot; on the same screen erases the account, every child profile and
           all progress immediately and permanently.
