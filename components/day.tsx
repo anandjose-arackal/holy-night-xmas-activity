@@ -1,8 +1,11 @@
+"use client";
+
 // Shared pieces of the day screens (sign-in, home, who is taking part): title, divider, icons, bottom tab bar.
 
 import Link from "next/link";
-import type { ReactNode, SVGProps } from "react";
+import { useEffect, useState, type ReactNode, type SVGProps } from "react";
 import { asset } from "@/lib/asset";
+import { site } from "@/lib/site";
 import { useT } from "@/lib/i18n";
 import { xpPill } from "@/lib/ui";
 
@@ -17,11 +20,13 @@ export const Divider = () => (
 
 /** The gold "Holy Night" headline with its subtitle. */
 export function Brand({ tag }: { tag: string }) {
+  const [logo, setLogo] = useState<{ src: string; alt: string } | null>(null);
+  useEffect(() => setLogo(site().logo), []); // eslint-disable-line react-hooks/set-state-in-effect -- the hostname is known only in the browser
   return (
     <header className="flex flex-col items-center gap-1 text-center animate-[rise_.6s_ease-out] motion-reduce:animate-none">
       <h1 className="w-full max-w-md">
         {/* eslint-disable-next-line @next/next/no-img-element -- local art with alpha, sized by CSS */}
-        <img src={asset("/brand/holy-night.webp")} alt="Holy Night" width={1000} height={334} className="h-auto w-full drop-shadow-[0_4px_6px_rgba(60,20,0,0.45)]" />
+        {logo && <img src={asset(logo.src)} alt={logo.alt} width={1000} height={334} className="h-auto w-full drop-shadow-[0_4px_6px_rgba(60,20,0,0.45)]" />}
       </h1>
       <p className="font-display text-xl font-bold text-white italic drop-shadow-[0_2px_3px_rgba(0,0,0,0.6)] sm:text-2xl">{tag}</p>
       <div className="mt-1 w-56">
