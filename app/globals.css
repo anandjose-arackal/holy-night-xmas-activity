@@ -78,6 +78,50 @@ body {
     linear-gradient(#b3202a 0%, #8a1520 45%, #5a0c14 100%);
 }
 
+/* Village islands on the activities path drift gently up and down. */
+@keyframes float {
+  50% {
+    transform: translateY(-10px) rotate(-1.5deg);
+  }
+}
+
+/* Activities path: the open sky of the floating villages instead of the red backdrop. */
+.sky-bg::before {
+  background:
+    radial-gradient(ellipse 70% 40% at 50% 8%, rgba(255, 244, 200, 0.55), transparent 70%),
+    linear-gradient(#3f9be6 0%, #77c3f5 40%, #b9e3fb 75%, #eaf7ff 100%);
+}
+/* Two cloud layers behind the path that drift at different speeds, for depth. */
+.sky-clouds {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 22% 7% at 15% 30%, rgba(255, 255, 255, 0.9), transparent 70%),
+    radial-gradient(ellipse 18% 6% at 80% 55%, rgba(255, 255, 255, 0.85), transparent 70%),
+    radial-gradient(ellipse 26% 8% at 40% 85%, rgba(255, 255, 255, 0.8), transparent 70%);
+  background-size: 200% 100%;
+  animation: clouds 90s linear infinite;
+}
+.sky-clouds.far {
+  opacity: 0.55;
+  filter: blur(6px);
+  background-size: 140% 80%;
+  animation-duration: 160s;
+  animation-direction: reverse;
+}
+@keyframes clouds {
+  to {
+    background-position: 200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sky-clouds {
+    animation: none;
+  }
+}
+
 @keyframes rise {
   from {
     transform: translateY(1rem);

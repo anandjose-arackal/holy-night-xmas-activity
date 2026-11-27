@@ -19,6 +19,7 @@ const cutSky = !!flag("sky");
 // Collapse across texture seams too. Smears texture islands, so only for plain-coloured models (a gold star).
 const permissive = !!flag("permissive");
 const heightOut = flag("height");
+const uvWeight = Number(flag("uv")) || 0;
 
 const file = readFileSync(src);
 const jsonLen = file.readUInt32LE(12);
@@ -182,7 +183,11 @@ for (const { prim, positions, vertexCount, indices, attributes } of geometry) {
   // coloured streaks, so it is not used; compress geometry (EXT_meshopt_compression) if the files must get smaller.
   let simplified = indices;
   for (const error of [0.01, 0.03, 0.1, 0.3, 1]) {
-    const [next] = MeshoptSimplifier.simplify(indices, positions, 3, goal - (goal % 3), error, permissive ? ["Prune", "Permissive"] : ["Prune"]);
+    const flags = permissive ? ["Prune", "Permissive"] : ["Prune"];
+    // --uv=W counts texture stretching as error, so seams only collapse where the texture lines up (image-to-3D villages).
+    const [next] = uvWeight && attributes.TEXCOORD_0
+      ? MeshoptSimplifier.simplifyWithAttributes(indices, positions, 3, attributes.TEXCOORD_0, 2, [uvWeight, uvWeight], null, goal - (goal % 3), error, flags)
+      : MeshoptSimplifier.simplify(indices, positions, 3, goal - (goal % 3), error, flags);
     if (next.length === 0) break;
     simplified = next;
     if (next.length <= goal * 1.5) break;
