@@ -17,7 +17,7 @@ import { useChild } from "@/lib/useChild";
  * in the order of the Syro-Malabar Annunciation Sundays: Zechariah in the Temple, Mary in Nazareth,
  * the Visitation in the hill country, then the stable in Bethlehem.
  */
-// Models made with: node scripts/simplify-glb.mjs <weekN.glb> public/villages/weekN.glb 80000 --tex=1024 --permissive --uv=5
+// Models made with: node scripts/simplify-glb.mjs <weekN.glb> public/villages/weekN.glb 80000 --tex=1024 --permissive --uv=5, then node scripts/compress-glb.mjs public/villages/weekN.glb
 const VILLAGES = [
   { first: 1, glb: "/villages/week1.glb", img: "/villages/week1.webp", name: { en: "The Temple", ml: "ജറുസലേം ദേവാലയം" } },
   { first: 8, glb: "/villages/week2.glb", img: "/villages/week2.webp", name: { en: "Nazareth", ml: "നസറത്ത്" } },
